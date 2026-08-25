@@ -42,3 +42,14 @@ All commands are run from the root of the project, from a terminal:
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
 # intercambios_nutricionales_frontend
+
+
+Mañana  (4h) — aprender e implementar
+└── 90 min — concepto nuevo
+└── 90 min — construirlo en el proyecto
+└── 60 min — romperlo, depurarlo, entenderlo
+
+Tarde   (4h) — consolidar y avanzar
+└── 60 min — repasar lo de la mañana
+└── 120 min — siguiente concepto
+└── 60 min — documentar qué aprendiste
