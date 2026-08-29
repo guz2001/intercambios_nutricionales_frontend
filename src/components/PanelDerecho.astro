@@ -1,0 +1,204 @@
+---
+/**
+ * PanelDerecho.astro
+ * Panel principal con el detalle nutricional del alimento seleccionado.
+ * Los valores se actualizan dinámicamente desde app.js vía IDs de DOM.
+ */
+import SeccionNutrientes from './SeccionNutrientes.astro';
+---
+
+<main class="panel-derecho">
+
+  <!-- Nombre y grupo del alimento seleccionado -->
+  <div class="alimento-header">
+    <h1 class="alimento-nombre" id="alimento-nombre">
+      Selecciona un alimento
+    </h1>
+    <span class="badge-grupo" id="alimento-badge" style="display:none"></span>
+  </div>
+
+  <!-- 4 tarjetas de métricas principales -->
+  <div class="metricas-grid">
+    <div class="metrica-card destacada">
+      <span class="metrica-valor" id="val-kcal">—</span>
+      <span class="metrica-label">kcal</span>
+    </div>
+    <div class="metrica-card">
+      <span class="metrica-valor" id="val-porcion">—</span>
+      <span class="metrica-label">porción</span>
+    </div>
+    <div class="metrica-card">
+      <span class="metrica-valor" id="val-proteina">—</span>
+      <span class="metrica-label">proteína</span>
+    </div>
+    <div class="metrica-card">
+      <span class="metrica-valor" id="val-grasa">—</span>
+      <span class="metrica-label">grasa</span>
+    </div>
+  </div>
+
+  <!-- Buscador de nutrientes -->
+  <div class="campo-filtro-nutrientes">
+    <svg
+      class="icono-filtro"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <circle cx="6.5" cy="6.5" r="4.5" />
+      <line x1="10.5" y1="10.5" x2="14" y2="14" />
+    </svg>
+    <input
+      type="text"
+      id="input-filtro-nutrientes"
+      placeholder="Filtrar nutriente..."
+    />
+  </div>
+
+  <!-- Área scrollable con todas las secciones de nutrientes -->
+  <div class="nutrientes-scroll" id="nutrientes-scroll">
+
+    <SeccionNutrientes titulo="Macronutrientes" dataSeccion="macronutrientes">
+      <div class="fila-nutriente" data-nombre="proteína">
+        <span class="nutriente-nombre">Proteína</span>
+        <span class="nutriente-valor" id="val-proteina-det">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="grasa total">
+        <span class="nutriente-nombre">Grasa total</span>
+        <span class="nutriente-valor" id="val-grasa-det">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="carbohidratos">
+        <span class="nutriente-nombre">Carbohidratos</span>
+        <span class="nutriente-valor" id="val-cho">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="fibra dietética">
+        <span class="nutriente-nombre">Fibra dietética</span>
+        <span class="nutriente-valor" id="val-fibra">—</span>
+      </div>
+    </SeccionNutrientes>
+
+    <SeccionNutrientes titulo="Tipos de grasa" dataSeccion="tipos-grasa">
+      <div class="fila-nutriente" data-nombre="ácidos grasos saturados">
+        <span class="nutriente-nombre">Ác. grasos saturados</span>
+        <span class="nutriente-valor" id="val-ags">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="ácidos grasos monoinsaturados">
+        <span class="nutriente-nombre">Ác. grasos monoinsaturados</span>
+        <span class="nutriente-valor" id="val-agm">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="ácidos grasos poliinsaturados">
+        <span class="nutriente-nombre">Ác. grasos poliinsaturados</span>
+        <span class="nutriente-valor" id="val-agp">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="colesterol">
+        <span class="nutriente-nombre">Colesterol</span>
+        <span class="nutriente-valor" id="val-colesterol">—</span>
+      </div>
+    </SeccionNutrientes>
+
+    <SeccionNutrientes titulo="Minerales" dataSeccion="minerales">
+      <div class="fila-nutriente" data-nombre="calcio">
+        <span class="nutriente-nombre">Calcio</span>
+        <span class="nutriente-valor" id="val-calcio">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="fósforo">
+        <span class="nutriente-nombre">Fósforo</span>
+        <span class="nutriente-valor" id="val-fosforo">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="hierro">
+        <span class="nutriente-nombre">Hierro</span>
+        <span class="nutriente-valor" id="val-hierro">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="sodio">
+        <span class="nutriente-nombre">Sodio</span>
+        <span class="nutriente-valor" id="val-sodio">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="potasio">
+        <span class="nutriente-nombre">Potasio</span>
+        <span class="nutriente-valor" id="val-potasio">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="magnesio">
+        <span class="nutriente-nombre">Magnesio</span>
+        <span class="nutriente-valor" id="val-magnesio">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="zinc">
+        <span class="nutriente-nombre">Zinc</span>
+        <span class="nutriente-valor" id="val-zinc">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="cobre">
+        <span class="nutriente-nombre">Cobre</span>
+        <span class="nutriente-valor" id="val-cobre">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="manganeso">
+        <span class="nutriente-nombre">Manganeso</span>
+        <span class="nutriente-valor" id="val-manganeso">—</span>
+      </div>
+    </SeccionNutrientes>
+
+    <SeccionNutrientes titulo="Vitaminas" dataSeccion="vitaminas">
+      <div class="fila-nutriente" data-nombre="vitamina a">
+        <span class="nutriente-nombre">Vitamina A (ER)</span>
+        <span class="nutriente-valor" id="val-vita">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="tiamina">
+        <span class="nutriente-nombre">Tiamina</span>
+        <span class="nutriente-valor" id="val-tiamina">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="riboflavina">
+        <span class="nutriente-nombre">Riboflavina</span>
+        <span class="nutriente-valor" id="val-riboflavina">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="niacina">
+        <span class="nutriente-nombre">Niacina</span>
+        <span class="nutriente-valor" id="val-niacina">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="ácido pantoténico">
+        <span class="nutriente-nombre">Ác. pantoténico</span>
+        <span class="nutriente-valor" id="val-pantotenico">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="piridoxina">
+        <span class="nutriente-nombre">Piridoxina</span>
+        <span class="nutriente-valor" id="val-piridoxina">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="folato">
+        <span class="nutriente-nombre">Folato</span>
+        <span class="nutriente-valor" id="val-folato">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="vitamina b12">
+        <span class="nutriente-nombre">Vitamina B12</span>
+        <span class="nutriente-valor" id="val-vitb12">—</span>
+      </div>
+      <div class="fila-nutriente" data-nombre="vitamina c">
+        <span class="nutriente-nombre">Vitamina C</span>
+        <span class="nutriente-valor" id="val-vitc">—</span>
+      </div>
+    </SeccionNutrientes>
+
+  </div><!-- fin nutrientes-scroll -->
+
+  <!-- Barra fija inferior: guardar y contador -->
+  <div class="barra-guardar">
+    <button class="btn-guardar" id="btn-guardar">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <line x1="8" y1="3" x2="8" y2="13" />
+        <line x1="3" y1="8" x2="13" y2="8" />
+      </svg>
+      Guardar alimento
+    </button>
+    <div class="contador-guardados" id="contador-guardados">0</div>
+  </div>
+
+</main>

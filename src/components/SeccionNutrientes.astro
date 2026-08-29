@@ -1,0 +1,21 @@
+---
+/**
+ * SeccionNutrientes.astro
+ * Wrapper reutilizable para cada sección del panel de nutrientes.
+ * Recibe el título y el identificador de sección; las filas se
+ * pasan como <slot />.
+ */
+interface Props {
+  titulo: string;
+  dataSeccion: string;
+}
+
+const { titulo, dataSeccion } = Astro.props;
+---
+
+<section class="seccion-nutrientes" data-seccion={dataSeccion}>
+  <h3 class="seccion-header">{titulo}</h3>
+  <div class="filas-nutrientes">
+    <slot />
+  </div>
+</section>

@@ -1,0 +1,77 @@
+---
+/**
+ * PanelIzquierdo.astro
+ * Panel lateral de búsqueda y filtrado de alimentos.
+ * La lista de tarjetas se genera dinámicamente desde app.js.
+ */
+---
+
+<aside class="panel-izquierdo tab-activo">
+  <div class="panel-content">
+
+    <!-- Filtro de población -->
+    <section class="seccion-poblacion">
+      <label class="seccion-label">Población</label>
+      <div class="poblacion-grid">
+        <button
+          class="btn-poblacion activo"
+          data-valor="ninos_y_adultos"
+        >
+          Niños y adultos
+        </button>
+        <button
+          class="btn-poblacion"
+          data-valor="adultos"
+        >
+          Adultos
+        </button>
+        <button
+          class="btn-poblacion"
+          data-valor="ninos"
+        >
+          Niños
+        </button>
+        <button
+          class="btn-poblacion"
+          data-valor="menores_de_dos_anios"
+        >
+          Menores de 2 años
+        </button>
+      </div>
+    </section>
+
+    <!-- Buscador de alimentos -->
+    <div class="campo-busqueda">
+      <svg
+        class="icono-busqueda"
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <circle cx="6.5" cy="6.5" r="4.5" />
+        <line x1="10.5" y1="10.5" x2="14" y2="14" />
+      </svg>
+      <input
+        type="text"
+        id="input-busqueda"
+        placeholder="Buscar alimento..."
+        autocomplete="off"
+      />
+    </div>
+
+    <!-- Dropdown de grupos alimentarios -->
+    <select id="select-grupo" class="select-grupo">
+      <option value="">Todos los grupos</option>
+      <!-- Opciones cargadas dinámicamente desde app.js -->
+    </select>
+
+    <!-- Lista de tarjetas de alimentos (cargada por app.js) -->
+    <div class="lista-alimentos" id="lista-alimentos">
+      <!-- TarjetaAlimento × N insertadas dinámicamente -->
+    </div>
+
+  </div>
+</aside>

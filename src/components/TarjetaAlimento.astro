@@ -1,0 +1,65 @@
+---
+/**
+ * TarjetaAlimento.astro
+ * Componente de referencia para una tarjeta de alimento.
+ * En producción las tarjetas se generan dinámicamente desde app.js
+ * usando la función renderizarTarjeta().
+ */
+interface Props {
+  alimento: {
+    id: number;
+    nombre: string;
+    grupo: { nombre: string };
+    porcion_g: number;
+    unidad_medida: string;
+    kcal: number;
+    proteina_g: number;
+    cho_g: number;
+    grasa_total_g: number;
+  };
+}
+
+const { alimento } = Astro.props;
+---
+
+<div class="tarjeta-alimento" data-id={alimento.id}>
+  <!-- Fila 1: nombre y badge de grupo -->
+  <div class="tarjeta-fila-1">
+    <span class="tarjeta-nombre">{alimento.nombre}</span>
+    <span class="badge-grupo">{alimento.grupo.nombre}</span>
+  </div>
+
+  <!-- Fila 2: porción -->
+  <div class="tarjeta-fila-2">
+    <svg
+      class="icono-porcion"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path d="M2 9L6 3L10 9H2Z" />
+    </svg>
+    <span class="tarjeta-porcion">
+      {alimento.porcion_g} {alimento.unidad_medida}
+    </span>
+  </div>
+
+  <!-- Fila 3: macronutrientes rápidos -->
+  <div class="tarjeta-fila-3">
+    <span class="tarjeta-stat">
+      <strong>{Math.round(alimento.kcal)}</strong> kcal
+    </span>
+    <span class="tarjeta-stat">
+      <strong>{alimento.proteina_g}g</strong> prot
+    </span>
+    <span class="tarjeta-stat">
+      <strong>{alimento.cho_g}g</strong> CHO
+    </span>
+    <span class="tarjeta-stat">
+      <strong>{alimento.grasa_total_g}g</strong> grasa
+    </span>
+  </div>
+</div>

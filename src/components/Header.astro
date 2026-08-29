@@ -1,0 +1,39 @@
+---
+/**
+ * Header.astro
+ * Barra superior de la aplicación con logo y datos del usuario.
+ */
+---
+
+<header class="app-header">
+  <!-- Marca / Logo -->
+  <div class="header-brand">
+    <!-- Ícono de hoja verde -->
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M10 2C10 2 3 6 3 12C3 15.3 6.1 18 10 18C13.9 18 17 15.3 17 12C17 6 10 2 10 2Z"
+        fill="#22C55E"
+      />
+      <path
+        d="M10 18V10M10 10C10 10 7 8 5 10"
+        stroke="white"
+        stroke-width="1.5"
+        stroke-linecap="round"
+      />
+    </svg>
+    <span class="brand-name">NutriConsulta</span>
+  </div>
+
+  <!-- Info del usuario -->
+  <div class="header-user">
+    <div class="user-avatar">LC</div>
+    <span class="user-name">Lcda. Camila Torres</span>
+  </div>
+</header>

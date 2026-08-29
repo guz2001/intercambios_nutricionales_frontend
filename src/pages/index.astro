@@ -1,17 +1,54 @@
 ---
-
+/**
+ * index.astro — Layout principal de NutriConsulta
+ * Ensambla los paneles izquierdo y derecho bajo el header.
+ */
+import Header from '../components/Header.astro';
+import PanelIzquierdo from '../components/PanelIzquierdo.astro';
+import PanelDerecho from '../components/PanelDerecho.astro';
+import '../styles/global.css';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>NutriConsulta — Tabla de composición de alimentos</title>
+    <meta
+      name="description"
+      content="Consulta la composición nutricional de alimentos para nutricionistas."
+    />
+  </head>
+
+  <body>
+    <div class="app-root">
+
+      <!-- Barra superior -->
+      <Header />
+
+      <!-- Tabs de navegación (solo en móvil) -->
+      <div class="tabs-movil">
+        <button class="tab-btn activo" data-tab="alimentos">
+          Alimentos
+        </button>
+        <button class="tab-btn" data-tab="detalle">
+          Detalle
+        </button>
+      </div>
+
+      <!-- Contenido principal: dos paneles lado a lado -->
+      <div class="app-body">
+        <PanelIzquierdo />
+        <PanelDerecho />
+      </div>
+
+    </div>
+
+    <!-- Lógica de la aplicación -->
+    <script>
+      import '../scripts/app.js';
+    </script>
+  </body>
 </html>
