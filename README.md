@@ -1,181 +1,227 @@
 # NutriConsulta — Frontend
 
-Interfaz web para consulta de composición nutricional de alimentos, diseñada para nutricionistas. Permite buscar alimentos, filtrar por grupo y población, y visualizar todos los nutrientes en detalle.
+Interfaz web para consultar la composición nutricional de alimentos, diseñada para nutricionistas. Permite buscar alimentos por nombre, filtrar por grupo alimentario y por tipo de población, seleccionar un alimento y ver el desglose completo de más de 30 nutrientes.
 
 ---
 
-## Stack
+## Capturas de pantalla
 
-- **[Astro](https://astro.build)** — framework de componentes con cero JS por defecto
-- **JavaScript vanilla** — lógica de interacción sin frameworks
-- **CSS custom con variables** — sin Tailwind, sin UI libraries
-- **Fuente Inter** — cargada desde Google Fonts
+> Agrega capturas aquí. Sugerencia de carpeta: `docs/screenshots/`.
+>
+> - `docs/screenshots/vista-desktop.png` — layout completo en pantalla ancha
+> - `docs/screenshots/lista-filtrada.png` — búsqueda con resultados filtrados
+> - `docs/screenshots/detalle-alimento.png` — panel derecho con nutrientes desplegados
+> - `docs/screenshots/vista-movil.png` — tabs en pantalla de 375px
+
+---
+
+## Stack tecnológico
+
+| Herramienta | Versión | Rol |
+|---|---|---|
+| [Astro](https://astro.build) | 7.x | Framework de componentes y build |
+| JavaScript vanilla | ES2020+ | Lógica de interacción en el cliente |
+| CSS custom con variables | — | Estilos sin frameworks externos |
+| Fuente Inter | — | Tipografía (cargada desde Google Fonts) |
+| Node.js | 18+ | Entorno de desarrollo |
+
+No se usa Tailwind, React, Vue ni ninguna UI library. Cero dependencias de componentes en producción.
 
 ---
 
 ## Estructura de carpetas
 
 ```
-src/
-├── mock/
-│   ├── alimentos.js       # 8 alimentos con todos los campos nutricionales
-│   └── grupos.js          # Lista de grupos para el dropdown de filtro
-├── pages/
-│   └── index.astro        # Layout principal — ensambla todos los componentes
-├── components/
-│   ├── Header.astro           # Barra superior con logo y usuario
-│   ├── PanelIzquierdo.astro   # Panel de búsqueda y lista de alimentos
-│   ├── PanelDerecho.astro     # Panel de detalle nutricional
-│   ├── TarjetaAlimento.astro  # Componente de referencia de tarjeta (renderizado por JS)
-│   └── SeccionNutrientes.astro # Wrapper reutilizable de sección de nutrientes
-├── scripts/
-│   └── app.js             # Toda la lógica: búsqueda, filtros, detalle, guardar
-└── styles/
-    └── global.css         # Variables CSS + reset + todos los estilos
+nutricion_frontend/
+├── public/                    # Archivos estáticos servidos tal cual
+│   └── favicon.svg
+├── src/
+│   ├── mock/
+│   │   ├── alimentos.js       # 8 alimentos con todos los campos nutricionales + funciones de filtrado
+│   │   └── grupos.js          # Lista de 6 grupos para el dropdown de filtro
+│   ├── pages/
+│   │   └── index.astro        # Única página: layout principal, importa y ensambla todos los componentes
+│   ├── components/
+│   │   ├── Header.astro           # Barra superior: logo NutriConsulta + nombre de la profesional
+│   │   ├── PanelIzquierdo.astro   # Panel lateral: botones de población, buscador, dropdown, lista de alimentos
+│   │   ├── PanelDerecho.astro     # Panel principal: nombre, métricas, filtro de nutrientes, 4 secciones
+│   │   ├── TarjetaAlimento.astro  # Componente de referencia (la versión dinámica la genera app.js)
+│   │   └── SeccionNutrientes.astro # Wrapper reutilizable para cada bloque de nutrientes (slot-based)
+│   ├── scripts/
+│   │   └── app.js             # Toda la lógica cliente: búsqueda, filtros, selección, guardar
+│   └── styles/
+│       └── global.css         # Variables CSS + reset + estilos de todos los componentes
+├── docs/
+│   ├── ARQUITECTURA.md        # Flujo de datos, comunicación entre componentes, decisiones técnicas
+│   ├── COMPONENTES.md         # Referencia de cada componente Astro
+│   ├── APP_JS.md              # Referencia de cada función en app.js
+│   ├── ESTILOS.md             # Variables CSS y guía de personalización
+│   └── MOCK_DATA.md           # Estructura de datos y guía para agregar alimentos
+├── astro.config.mjs           # Configuración de Astro (sin integraciones adicionales)
+├── package.json
+└── README.md                  # Este archivo
 ```
 
 ---
 
-## Cómo correr el proyecto
+## Cómo correr el proyecto localmente
 
-### Requisitos
-- Node.js 18+
-- npm
+### 1. Requisitos previos
 
-### Instalación
+- Node.js 18 o superior
+- npm (incluido con Node.js)
+
+### 2. Instalar dependencias
 
 ```bash
+cd nutricion_frontend
 npm install
 ```
 
-### Desarrollo
+### 3. Iniciar el servidor de desarrollo
 
 ```bash
 npm run dev
 ```
 
-El servidor arranca en `http://localhost:4321`.
+El servidor arranca en **http://localhost:4321**.
 
-> **Nota:** también puedes usar los comandos de Astro:
-> ```bash
-> astro dev --background   # modo background
-> astro dev stop           # detener
-> astro dev status         # verificar estado
-> astro dev logs           # ver logs
-> ```
-
-### Build para producción
+También puedes usar los comandos de Astro CLI directamente:
 
 ```bash
-npm run build
-npm run preview
+# Modo background (no bloquea la terminal)
+astro dev --background
+
+# Ver estado del servidor en background
+astro dev status
+
+# Ver logs del servidor en background
+astro dev logs
+
+# Detener el servidor en background
+astro dev stop
+```
+
+### 4. Build para producción
+
+```bash
+npm run build       # Genera la carpeta dist/
+npm run preview     # Previsualiza el build en localhost
 ```
 
 ---
 
 ## Cómo conectar el backend Django
 
-1. Abre `src/scripts/app.js`
-2. Cambia la línea:
-   ```js
-   const USE_MOCK = true;
-   ```
-   a:
-   ```js
-   const USE_MOCK = false;
-   ```
+### Paso único
 
-### Endpoints esperados
+Abre el archivo `src/scripts/app.js` y cambia la línea 21:
 
-| Método | URL | Descripción |
-|--------|-----|-------------|
-| `GET` | `/api/alimentos/` | Lista de alimentos con filtros |
-| `GET` | `/api/alimentos/:id/` | Detalle de un alimento |
+```js
+// ANTES (modo mock, sin backend)
+const USE_MOCK = true;
 
-### Parámetros de query para `/api/alimentos/`
+// DESPUÉS (conectado al backend)
+const USE_MOCK = false;
+```
+
+Con `USE_MOCK = false`, la app deja de leer los archivos locales y pasa a hacer peticiones HTTP reales al backend.
+
+### Endpoints que el backend debe implementar
+
+#### `GET /api/alimentos/`
+
+Retorna la lista de alimentos filtrada según los parámetros de query.
+
+**Parámetros de query (todos opcionales):**
 
 | Parámetro | Tipo | Descripción |
-|-----------|------|-------------|
-| `q` | string | Texto de búsqueda por nombre |
-| `grupo_id` | number | Filtrar por ID de grupo |
-| `poblacion` | string | `ninos_y_adultos` \| `adultos` \| `ninos` \| `menores_de_dos_anios` |
+|---|---|---|
+| `q` | `string` | Texto de búsqueda por nombre (case-insensitive) |
+| `grupo_id` | `number` | ID del grupo alimentario |
+| `poblacion` | `string` | `ninos_y_adultos` / `adultos` / `ninos` / `menores_de_dos_anios` |
+
+**Respuesta esperada:** array de objetos alimento (ver estructura abajo).
+
+**Ejemplo de URL:** `/api/alimentos/?q=leche&grupo_id=2&poblacion=adultos`
 
 ---
 
-## Estructura de datos esperada
+#### `GET /api/alimentos/:id/`
 
-### Alimento (lista y detalle)
+Retorna el detalle completo de un alimento por su ID.
 
-```js
+**Respuesta esperada:** objeto alimento único (misma estructura que la lista).
+
+**Ejemplo de URL:** `/api/alimentos/1/`
+
+---
+
+#### `GET /api/grupos/` *(opcional — solo si USE_MOCK = false)*
+
+Retorna la lista de grupos para el dropdown. El frontend la consume en `cargarGrupos()`.
+
+**Respuesta esperada:**
+```json
+[
+  { "id": 1, "nombre": "Cereales y derivados" },
+  { "id": 2, "nombre": "Lácteos" }
+]
+```
+
+---
+
+### Estructura exacta de datos — objeto alimento
+
+```json
 {
-  id: 1,
-  nombre: "Leche entera",
-  grupo: { id: 2, nombre: "Lácteos" },
-  porcion_g: 240,
-  unidad_medida: "ml",
-  poblacion: "adultos",          // para filtrado
-  kcal: 150,
-  proteina_g: 8.0,
-  cho_g: 11.7,                   // carbohidratos
-  grasa_total_g: 8.0,
-  fibra_g: 0,
-  ags_g: 4.6,                    // ácidos grasos saturados
-  agm_g: 2.3,                    // ácidos grasos monoinsaturados
-  agp_g: 0.3,                    // ácidos grasos poliinsaturados
-  colesterol_mg: 30,
-  calcio_mg: 290,
-  fosforo_mg: 222,
-  hierro_mg: 0.1,
-  sodio_mg: 105,
-  potasio_mg: 370,
-  magnesio_mg: 27,
-  zinc_mg: 1.0,
-  cobre_mg: 0.01,
-  manganeso_mg: 0.01,
-  vita_er: 68,                   // vitamina A en equivalentes de retinol
-  tiamina_mg: 0.09,
-  riboflavina_mg: 0.35,
-  niacina_mg: 0.2,
-  pantotenico_mg: 0.72,
-  piridoxina_mg: 0.08,
-  folato_mcg: 12,
-  vitb12_mcg: 0.9,
-  vitc_mg: 0,
+  "id": 1,
+  "nombre": "Leche entera",
+  "grupo": {
+    "id": 2,
+    "nombre": "Lácteos"
+  },
+  "porcion_g": 240,
+  "unidad_medida": "ml",
+  "poblacion": "adultos",
+  "kcal": 150,
+  "proteina_g": 8.0,
+  "cho_g": 11.7,
+  "grasa_total_g": 8.0,
+  "fibra_g": 0,
+  "ags_g": 4.6,
+  "agm_g": 2.3,
+  "agp_g": 0.3,
+  "colesterol_mg": 30,
+  "calcio_mg": 290,
+  "fosforo_mg": 222,
+  "hierro_mg": 0.1,
+  "sodio_mg": 105,
+  "potasio_mg": 370,
+  "magnesio_mg": 27,
+  "zinc_mg": 1.0,
+  "cobre_mg": 0.01,
+  "manganeso_mg": 0.01,
+  "vita_er": 68,
+  "tiamina_mg": 0.09,
+  "riboflavina_mg": 0.35,
+  "niacina_mg": 0.2,
+  "pantotenico_mg": 0.72,
+  "piridoxina_mg": 0.08,
+  "folato_mcg": 12,
+  "vitb12_mcg": 0.9,
+  "vitc_mg": 0
 }
 ```
 
-Los campos nulos o con valor `0` se muestran como `—` en la UI.
-
-### Grupo
-
-```js
-{ id: 1, nombre: "Cereales y derivados" }
-```
+Los campos con valor `null`, `undefined` o `0` se muestran como `—` en la interfaz (ver `formatearValor()` en app.js).
 
 ---
 
-## Variables CSS y cómo personalizar
+## Documentación adicional
 
-Todas las variables están en `src/styles/global.css` bajo `:root`. Para cambiar la paleta de colores basta editar esas variables:
-
-```css
-:root {
-  --color-primary: #3B82F6;       /* azul principal */
-  --color-primary-hover: #2563EB;
-  --color-primary-light: #EFF6FF; /* fondo de cards activas */
-  --color-primary-dark: #1D4ED8;  /* texto de badges */
-  --color-bg: #F8FAFC;            /* fondo general */
-  --color-border: #E2E8F0;
-  /* ver global.css para la lista completa */
-}
-```
-
----
-
-## Decisiones de diseño
-
-- **Sin framework UI:** CSS custom con variables garantiza cero dependencias de UI y control total sobre los estilos.
-- **Datos mock en JS:** el flag `USE_MOCK` permite trabajar completamente offline durante el desarrollo del frontend, antes de que el backend esté disponible.
-- **Tarjetas renderizadas por JS:** la lista de alimentos se genera dinámicamente para soportar búsqueda y filtrado sin recargar la página.
-- **Debounce 300 ms:** la búsqueda por texto no dispara una petición por cada tecla, sino 300 ms después de la última pulsación.
-- **Responsive con tabs:** en móvil (< 768 px) los dos paneles se convierten en tabs para aprovechar el espacio de pantalla.
+- [Arquitectura y flujo de datos](docs/ARQUITECTURA.md)
+- [Referencia de componentes](docs/COMPONENTES.md)
+- [Referencia de app.js](docs/APP_JS.md)
+- [Variables CSS y estilos](docs/ESTILOS.md)
+- [Datos mock y estructura](docs/MOCK_DATA.md)
