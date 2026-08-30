@@ -3,19 +3,19 @@
 
 :root {
   /* Colores */
-  --color-primary: #3B82F6;
-  --color-primary-hover: #2563EB;
-  --color-primary-light: #EFF6FF;
-  --color-primary-dark: #1D4ED8;
+  --color-primary: #392a90;
+  --color-primary-hover: #614bf1;
+  --color-primary-light: #bdb7d9;
+  --color-primary-dark: #3d1ce0; /*Color del texto pequeño*/
   --color-bg: #F8FAFC;
   --color-panel: #FFFFFF;
   --color-border: #E2E8F0;
   --color-border-light: #F1F5F9;
   --color-text-primary: #1E293B;
-  --color-text-secondary: #475569;
-  --color-text-muted: #94A3B8;
-  --color-section-header: #94A3B8;
-  --color-card-active-border: #3B82F6;
+  --color-text-secondary: #7f77f0;
+  --color-text-muted: #b0a1e6;
+  --color-section-header: #978ebf;
+  --color-card-active-border: #573bf6;
 
   /* Tipografía */
   --font-family: 'Inter', sans-serif;

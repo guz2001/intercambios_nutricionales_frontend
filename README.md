@@ -160,7 +160,7 @@ Todas las variables están en `src/styles/global.css` bajo `:root`. Para cambiar
 
 ```css
 :root {
-  --color-primary: #3B82F6;       /* azul principal */
+  --color-primary: #dee4ee;       /* azul principal */
   --color-primary-hover: #2563EB;
   --color-primary-light: #EFF6FF; /* fondo de cards activas */
   --color-primary-dark: #1D4ED8;  /* texto de badges */
