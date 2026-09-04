@@ -19,9 +19,9 @@ import { filtrarMocks, obtenerMockPorId } from '../mock/alimentos.js';
 
 /* Cambiar a false cuando el backend Django esté listo */
 const USE_MOCK = false; // cambiamos a false para conectar este frontend con el backend
-
+const API_BASE_URL = 'http://127.0.0.1:8000/api/'
 const estado = {
-  poblacion: 'ninos_y_adultos',
+  poblacion: 'niños_y_adultos',
   busqueda: '',
   grupoId: '',
   filtroNutriente: '',
@@ -36,19 +36,20 @@ async function fetchAlimentos(params) {
   if (USE_MOCK) {
     return filtrarMocks(params);
   }
-  const url = new URL('/api/alimentos/', window.location.origin);
+  const url = new URL('alimentos/', API_BASE_URL);
   if (params.q) url.searchParams.set('q', params.q);
   if (params.grupo_id) url.searchParams.set('grupo_id', params.grupo_id);
   if (params.poblacion) url.searchParams.set('poblacion', params.poblacion);
   const res = await fetch(url);
-  return res.json();
+  const data = await res.json();
+  return data.results;
 }
 
 async function fetchDetalle(id) {
   if (USE_MOCK) {
     return obtenerMockPorId(id);
   }
-  const res = await fetch(`/api/alimentos/${id}/`);
+  const res = await fetch(`${API_BASE_URL}alimentos/${id}/`);
   return res.json();
 }
 
@@ -293,7 +294,8 @@ async function cargarGrupos() {
   const select = document.getElementById('select-grupo');
   if (!select) return;
 
-  const grupos = USE_MOCK ? gruposMock : await fetch('/api/grupos/').then((r) => r.json());
+  const data = USE_MOCK ? gruposMock : await fetch(`${API_BASE_URL}grupos/`).then((r) => r.json());
+  const grupos = USE_MOCK ? data : data.results;  
 
   grupos.forEach((grupo) => {
     const option = document.createElement('option');
