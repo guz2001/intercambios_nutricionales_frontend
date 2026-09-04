@@ -137,10 +137,10 @@ function renderizarDetalle(alimento) {
 
   /* Métricas superiores */ 
   setText('val-kcal', Math.round(alimento.kcal));/*Math round redondea el numero al entero mas cercano */
-  setText('val-porcion', `${Math.round(alimento.porcion_g)}g`);
+  setText('val-porcion', `${Math.round(alimento.porcion_g)}g`);//Se hizo esto para redondear el gramaje
   setText('val-unidad',`${alimento.unidad_medida}`);
-  setText('val-proteina', `${alimento.proteina_g}g`);
-  setText('val-grasa', `${alimento.grasa_total_g}g`);
+  setText('val-proteina', `${Math.round((alimento.proteina_g)*10)/10}g`);
+  setText('val-grasa', `${Math.round((alimento.grasa_total_g)*10)/10}g`);
   setText('val-poblacion', `${alimento.poblacion}`);
 
   /* Macronutrientes */
@@ -194,7 +194,7 @@ function setText(id, valor) {
 /* Formatea un valor numérico con unidad; retorna "—" si es nulo o cero */
 function formatearValor(valor, unidad) {
   if (valor === null || valor === undefined || parseFloat(valor) === 0) {
-    return '—';
+    return '————';
   }
   return `${parseFloat(valor).toFixed(1)} ${unidad}`;
 }
