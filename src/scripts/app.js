@@ -137,7 +137,8 @@ function renderizarDetalle(alimento) {
 
   /* Métricas superiores */ 
   setText('val-kcal', Math.round(alimento.kcal));/*Math round redondea el numero al entero mas cercano */
-  setText('val-porcion', `${alimento.porcion_g} ${alimento.unidad_medida}`);
+  setText('val-porcion', `${alimento.porcion_g} `);
+  setText('val-unidad',`${alimento.unidad_medida}`);
   setText('val-proteina', `${alimento.proteina_g}g`);
   setText('val-grasa', `${alimento.grasa_total_g}g`);
 
