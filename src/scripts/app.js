@@ -18,7 +18,7 @@ import { filtrarMocks, obtenerMockPorId } from '../mock/alimentos.js';
 // ─── 1. CONFIG Y ESTADO ────────────────────────────────────────────────────────
 
 /* Cambiar a false cuando el backend Django esté listo */
-const USE_MOCK = true;
+const USE_MOCK = false; // cambiamos a false para conectar este frontend con el backend
 
 const estado = {
   poblacion: 'ninos_y_adultos',
