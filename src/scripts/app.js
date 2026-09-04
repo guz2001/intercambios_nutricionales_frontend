@@ -21,7 +21,7 @@ import { filtrarMocks, obtenerMockPorId } from '../mock/alimentos.js';
 const USE_MOCK = false; // cambiamos a false para conectar este frontend con el backend
 const API_BASE_URL = 'http://127.0.0.1:8000/api/'
 const estado = {
-  poblacion: 'niños_y_adultos',
+  poblacion: '',
   busqueda: '',
   grupoId: '',
   filtroNutriente: '',
@@ -42,6 +42,7 @@ async function fetchAlimentos(params) {
   if (params.poblacion) url.searchParams.set('poblacion', params.poblacion);
   const res = await fetch(url);
   const data = await res.json();
+  console.log('Respuesta del servidor:', data);
   return data.results;
 }
 
