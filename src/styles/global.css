@@ -319,6 +319,10 @@ button, input, select, textarea {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
+.tarjeta-unidad {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
 
 .tarjeta-fila-3 {
   display: flex;

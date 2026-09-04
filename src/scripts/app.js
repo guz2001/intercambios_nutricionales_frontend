@@ -111,13 +111,14 @@ function renderizarTarjeta(alimento) {
       </div>
       <div class="tarjeta-fila-2">
         ${iconoPorcion}
-        <span class="tarjeta-porcion">${alimento.porcion_g} ${alimento.unidad_medida}</span>
+        <span class="tarjeta-porcion">${Math.trunc((alimento.porcion_g*10)/10)}</span>
+        <span class="tarjeta-unidad">${alimento.unidad_medida}</span>
       </div>
       <div class="tarjeta-fila-3">
-        <span class="tarjeta-stat"><strong>${Math.round(alimento.kcal)}</strong> kcal</span>
-        <span class="tarjeta-stat"><strong>${alimento.proteina_g}g</strong> prot</span>
-        <span class="tarjeta-stat"><strong>${alimento.cho_g}g</strong> CHO</span>
-        <span class="tarjeta-stat"><strong>${alimento.grasa_total_g}g</strong> grasa</span>
+        <span class="tarjeta-stat"><strong>${Math.trunc(alimento.kcal)}</strong> kcal</span>
+        <span class="tarjeta-stat"><strong>${Math.trunc((alimento.proteina_g*10)/10)}g</strong> prot</span>
+        <span class="tarjeta-stat"><strong>${Math.trunc((alimento.cho_g*10)/10)}g</strong> CHO</span>
+        <span class="tarjeta-stat"><strong>${Math.trunc(alimento.grasa_total_g*10)/10}g</strong> grasa</span>
       </div>
     </div>
   `;
@@ -136,11 +137,11 @@ function renderizarDetalle(alimento) {
   }
 
   /* Métricas superiores */ 
-  setText('val-kcal', Math.round(alimento.kcal));/*Math round redondea el numero al entero mas cercano */
-  setText('val-porcion', `${Math.round(alimento.porcion_g)}g`);//Se hizo esto para redondear el gramaje
+  setText('val-kcal', Math.trunc(alimento.kcal));/*Math round redondea el numero al entero mas cercano */
+  setText('val-porcion', `${Math.trunc(alimento.porcion_g)}g`);//Se hizo esto para redondear el gramaje
   setText('val-unidad',`${alimento.unidad_medida}`);
-  setText('val-proteina', `${Math.round((alimento.proteina_g)*10)/10}g`);
-  setText('val-grasa', `${Math.round((alimento.grasa_total_g)*10)/10}g`);
+  setText('val-proteina', `${Math.trunc((alimento.proteina_g)*10)/10}g`);
+  setText('val-grasa', `${Math.trunc((alimento.grasa_total_g)*100)/100}g`);
   setText('val-poblacion', `${alimento.poblacion}`);
 
   /* Macronutrientes */
@@ -150,9 +151,9 @@ function renderizarDetalle(alimento) {
   setText('val-fibra', formatearValor(alimento.fibra_g, 'g'));
 
   /* Tipos de grasa */
-  setText('val-ags', formatearValor(alimento.ags_g, 'g'));
-  setText('val-agm', formatearValor(alimento.agm_g, 'g'));
-  setText('val-agp', formatearValor(alimento.agp_g, 'g'));
+  setText('val-ags', formatearValor(Math.trunc(alimento.ags_g*100)/100, 'g'));
+  setText('val-agm', formatearValor(Math.trunc(alimento.agm_g*100)/100, 'g'));
+  setText('val-agp', formatearValor(Math.trunc(alimento.agp_g*100)/100, 'g'));
   setText('val-colesterol', formatearValor(alimento.colesterol_mg, 'mg'));
 
   /* Minerales */
