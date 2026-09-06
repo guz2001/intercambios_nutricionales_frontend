@@ -19,7 +19,7 @@ import { filtrarMocks, obtenerMockPorId } from '../mock/alimentos.js';
 
 /* Cambiar a false cuando el backend Django esté listo */
 const USE_MOCK = false; // cambiamos a false para conectar este frontend con el backend
-const API_BASE_URL = 'http://127.0.0.1:8000/api/'
+const API_BASE_URL = '/api/'
 const estado = {
   poblacion: '',
   busqueda: '',
@@ -36,13 +36,13 @@ async function fetchAlimentos(params) {
   if (USE_MOCK) {
     return filtrarMocks(params);
   }
-  const url = new URL('alimentos/', API_BASE_URL);
-  if (params.q) url.searchParams.set('q', params.q);
-  if (params.grupo_id) url.searchParams.set('grupo_id', params.grupo_id);
-  if (params.poblacion) url.searchParams.set('poblacion', params.poblacion);
-  const res = await fetch(url);
+  const searchParams = new URLSearchParams();
+  if (params.q) searchParams.set('q', params.q);
+  if (params.grupo_id) searchParams.set('grupo_id', params.grupo_id);
+  if (params.poblacion) searchParams.set('poblacion', params.poblacion);
+
+  const res = await fetch(`${API_BASE_URL}alimentos/?${searchParams.toString()}`);
   const data = await res.json();
-  console.log('Respuesta del servidor:', data);
   return data.results;
 }
 
@@ -112,7 +112,7 @@ function renderizarTarjeta(alimento) {
       </div>
       <div class="tarjeta-fila-2">
         ${iconoPorcion}
-        <span class="tarjeta-porcion">${Math.trunc((alimento.porcion_g*10)/10)}</span>
+        <span class="tarjeta-porcion">${Math.trunc((alimento.porcion_g*10)/10)}g</span>
         <span class="tarjeta-unidad">${alimento.unidad_medida}</span>
       </div>
       <div class="tarjeta-fila-3">
@@ -138,7 +138,7 @@ function renderizarDetalle(alimento) {
   }
 
   /* Métricas superiores */ 
-  setText('val-kcal', Math.trunc(alimento.kcal));/*Math round redondea el numero al entero mas cercano */
+  setText('val-kcal', `${Math.trunc(alimento.kcal)}`);/*Math round redondea el numero al entero mas cercano */
   setText('val-porcion', `${Math.trunc(alimento.porcion_g)}g`);//Se hizo esto para redondear el gramaje
   setText('val-unidad',`${alimento.unidad_medida}`);
   setText('val-proteina', `${Math.trunc((alimento.proteina_g)*10)/10}g`);
@@ -169,15 +169,15 @@ function renderizarDetalle(alimento) {
   setText('val-manganeso', formatearValor(alimento.manganeso_mg, 'mg'));
 
   /* Vitaminas */
-  setText('val-vita', formatearValor(alimento.vita_er, 'μg ER'));
+  setText('val-vita', formatearValor(alimento.vit_a_er, 'μg ER'));
   setText('val-tiamina', formatearValor(alimento.tiamina_mg, 'mg'));
   setText('val-riboflavina', formatearValor(alimento.riboflavina_mg, 'mg'));
   setText('val-niacina', formatearValor(alimento.niacina_mg, 'mg'));
-  setText('val-pantotenico', formatearValor(alimento.pantotenico_mg, 'mg'));
+  setText('val-pantotenico', formatearValor((alimento.ac_pantotenico_mg ), 'mg'));
   setText('val-piridoxina', formatearValor(alimento.piridoxina_mg, 'mg'));
   setText('val-folato', formatearValor(alimento.folato_mcg, 'μg'));
-  setText('val-vitb12', formatearValor(alimento.vitb12_mcg, 'μg'));
-  setText('val-vitc', formatearValor(alimento.vitc_mg, 'mg'));
+  setText('val-vitb12', formatearValor(alimento.vit_b12_mcg, 'μg'));
+  setText('val-vitc', formatearValor(alimento.vit_c_mg, 'mg'));
 
   /* Restablecer filtro de nutrientes */
   const inputFiltro = document.getElementById('input-filtro-nutrientes');
@@ -196,7 +196,7 @@ function setText(id, valor) {
 /* Formatea un valor numérico con unidad; retorna "—" si es nulo o cero */
 function formatearValor(valor, unidad) {
   if (valor === null || valor === undefined || parseFloat(valor) === 0) {
-    return '————';
+    return '——';
   }
   return `${parseFloat(valor).toFixed(1)} ${unidad}`;
 }
