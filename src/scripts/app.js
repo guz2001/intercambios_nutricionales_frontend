@@ -320,9 +320,10 @@ function registrarEventos() {
     .forEach((b) => b.classList.remove('activo'));
   btn.classList.add('activo');
   estado.poblacion = btn.dataset.valor;
-  buscarYRenderizar();
+  
+
 });
-    await
+    buscarYRenderizar();
   });
 
   /* Búsqueda por texto */
