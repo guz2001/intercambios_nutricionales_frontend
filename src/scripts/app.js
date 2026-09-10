@@ -21,7 +21,7 @@ import { filtrarMocks, obtenerMockPorId } from '../mock/alimentos.js';
 const USE_MOCK = false; // cambiamos a false para conectar este frontend con el backend
 const API_BASE_URL = '/api/'
 const estado = {
-  poblacion: '',
+  poblacion: 'niños_y_adultos',
   busqueda: '',
   grupoId: '',
   filtroNutriente: '',
