@@ -314,7 +314,7 @@ async function cargarGrupos() {
 function registrarEventos() {
   /* Filtros de población */
   document.querySelectorAll('.btn-poblacion').forEach((btn) => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async() => {
       document
         .querySelectorAll('.btn-poblacion')
         .forEach((b) => b.classList.remove('activo'));
