@@ -298,9 +298,9 @@ async function cargarGrupos() {
   const select = document.getElementById('select-grupo');
   if (!select) return;
 
-  const data = USE_MOCK ? gruposMock : await fetch(`${API_BASE_URL}grupos/`).then((r) => r.json());
+  const data = USE_MOCK ? gruposMock : await fetch(`${API_BASE_URL}grupos/?poblacion=${estado.poblacion}`).then((r) => r.json());
   const grupos = USE_MOCK ? data : data.results;  
-
+  select.innerHTML='';
   grupos.forEach((grupo) => {
     const option = document.createElement('option');
     option.value = grupo.id;
@@ -320,10 +320,11 @@ function registrarEventos() {
     .forEach((b) => b.classList.remove('activo'));
   btn.classList.add('activo');
   estado.poblacion = btn.dataset.valor;
-  
+  await buscarYRenderizar();
+  await cargarGrupos();
 
 });
-    buscarYRenderizar();
+    
   });
 
   /* Búsqueda por texto */
@@ -332,7 +333,9 @@ function registrarEventos() {
     inputBusqueda.addEventListener('input', (e) => {
       estado.busqueda = e.target.value;
       buscarConDebounce();
+      
     });
+    
   }
 
   /* Filtro por grupo */
@@ -342,6 +345,7 @@ function registrarEventos() {
       estado.grupoId = e.target.value;
       buscarYRenderizar();
     });
+    
   }
 
   /* Filtro de nutrientes en el panel derecho */
