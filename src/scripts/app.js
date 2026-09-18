@@ -54,6 +54,41 @@ async function fetchDetalle(id) {
   return res.json();
 }
 
+/* Lista de alimentos guardados. La respuesta viene paginada por DRF, se extrae .results */
+async function fetchGuardados() {
+  const res = await fetch(`${API_BASE_URL}guardados/`);
+  const data = await res.json();
+  return data.results;
+}
+
+/*
+ * POST necesita un segundo argumento en fetch: el metodo, la cabecera que avisa
+ * que el cuerpo es JSON, y el cuerpo convertido a texto con JSON.stringify.
+ */
+async function guardarAlimento(alimentoId, cantidad = 1) {
+  const res = await fetch(`${API_BASE_URL}guardados/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ alimento_id: alimentoId, cantidad }),
+  });
+  if (!res.ok) throw new Error('No se pudo guardar el alimento');
+  return res.json();
+}
+
+/* DELETE responde 204 No Content: no hay cuerpo que leer, por eso no se hace res.json() */
+async function eliminarGuardado(guardadoId) {
+  const res = await fetch(`${API_BASE_URL}guardados/${guardadoId}/`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) throw new Error('No se pudo eliminar');
+}
+
+/* Totales ya sumados por el backend (endpoint /api/guardados/total/) */
+async function fetchTotales() {
+  const res = await fetch(`${API_BASE_URL}guardados/total/`);
+  return res.json();
+}
+
 // ─── 3. RENDERIZADO DE LISTA ───────────────────────────────────────────────────
 
 function renderizarLista(alimentos) {
@@ -242,16 +277,51 @@ function filtrarNutrientes(texto) {
 
 // ─── 6. GUARDAR ALIMENTOS ──────────────────────────────────────────────────────
 
-function guardarAlimento(id) {
-  /* Evitar duplicados */
-  if (estado.guardados.includes(id)) return;
-  estado.guardados.push(id);
-  actualizarContador();
+function renderizarGuardados(guardados) {
+  const contenedor = document.getElementById('lista-guardados');
+  if (!contenedor) return;
+
+  if (guardados.length === 0) {
+    contenedor.innerHTML = '<p class="vacio">No hay alimentos guardados</p>';
+    return;
+  }
+
+  /* Number(): los decimales llegan de Django como texto ("161.000"), no como numeros */
+  contenedor.innerHTML = guardados.map((g) => `
+    <div class="guardado-item" data-id="${g.id}">
+      <span class="guardado-nombre">${g.alimento.nombre}</span>
+      <span class="guardado-cantidad">x${Number(g.cantidad).toFixed(1)}</span>
+      <span class="guardado-kcal">${(Number(g.alimento.kcal) * Number(g.cantidad)).toFixed(0)} kcal</span>
+      <button class="btn-eliminar-guardado" data-id="${g.id}" aria-label="Eliminar">&times;</button>
+    </div>
+  `).join('');
 }
 
-function actualizarContador() {
+function renderizarTotales(totales) {
+  const contenedor = document.getElementById('totales');
+  if (!contenedor) return;
+
+  contenedor.innerHTML = `
+    <div class="total-item"><span>Total kcal</span><strong>${Number(totales.kcal).toFixed(0)}</strong></div>
+    <div class="total-item"><span>Proteina</span><strong>${Number(totales.proteina_g).toFixed(1)} g</strong></div>
+    <div class="total-item"><span>Grasa</span><strong>${Number(totales.grasa_total_g).toFixed(1)} g</strong></div>
+    <div class="total-item"><span>Carbohidratos</span><strong>${Number(totales.cho_g).toFixed(1)} g</strong></div>
+    <div class="total-item"><span>Porcion total</span><strong>${Number(totales.porcion_g).toFixed(0)} g</strong></div>
+  `;
+
   const contador = document.getElementById('contador-guardados');
-  if (contador) contador.textContent = estado.guardados.length;
+  if (contador) contador.textContent = totales.items;
+}
+
+/* Promise.all lanza las dos peticiones en paralelo en vez de una tras otra */
+async function actualizarGuardados() {
+  const [guardados, totales] = await Promise.all([
+    fetchGuardados(),
+    fetchTotales(),
+  ]);
+  estado.guardados = guardados;
+  renderizarGuardados(guardados);
+  renderizarTotales(totales);
 }
 
 // ─── 7. SELECCIÓN DE ALIMENTO ──────────────────────────────────────────────────
@@ -357,12 +427,37 @@ function registrarEventos() {
     });
   }
 
-  /* Botón guardar */
+  /* Botón guardar: manda el alimento seleccionado al backend y refresca lista y totales */
   const btnGuardar = document.getElementById('btn-guardar');
   if (btnGuardar) {
-    btnGuardar.addEventListener('click', () => {
-      if (estado.alimentoSeleccionado) {
-        guardarAlimento(estado.alimentoSeleccionado.id);
+    btnGuardar.addEventListener('click', async () => {
+      if (!estado.alimentoSeleccionado) return;
+      try {
+        await guardarAlimento(estado.alimentoSeleccionado.id, 1);
+        await actualizarGuardados();
+      } catch (error) {
+        console.error(error);
+      }
+    });
+  }
+
+  /*
+   * Eliminar un guardado — delegación de eventos.
+   * Los botones de eliminar se crean cada vez que se redibuja la lista, así que
+   * no existen al cargar la página y no se les puede poner un listener individual.
+   * En su lugar se escucha en el contenedor padre (que sí existe siempre) y se
+   * comprueba con closest() si el clic cayó sobre un botón de eliminar.
+   */
+  const listaGuardados = document.getElementById('lista-guardados');
+  if (listaGuardados) {
+    listaGuardados.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.btn-eliminar-guardado');
+      if (!btn) return;
+      try {
+        await eliminarGuardado(btn.dataset.id);
+        await actualizarGuardados();
+      } catch (error) {
+        console.error(error);
       }
     });
   }
@@ -379,6 +474,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await cargarGrupos();
   await buscarYRenderizar();
   registrarEventos();
+  await actualizarGuardados();
 
   /* Tab activo inicial en móvil */
   if (window.innerWidth <= 768) {
