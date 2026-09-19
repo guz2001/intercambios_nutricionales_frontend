@@ -352,10 +352,12 @@ async function seleccionarAlimento(tarjetaEl) {
 function cambiarTab(tab) {
   const panelIzq = document.querySelector('.panel-izquierdo');
   const panelDer = document.querySelector('.panel-derecho');
+  const panelGuardar = document.querySelector('.panel-guardar');
   const tabBtns = document.querySelectorAll('.tab-btn');
 
   panelIzq?.classList.toggle('tab-activo', tab === 'alimentos');
   panelDer?.classList.toggle('tab-activo', tab === 'detalle');
+  panelGuardar?.classList.toggle('tab-activo', tab === 'guardar');
 
   tabBtns.forEach((btn) => {
     btn.classList.toggle('activo', btn.dataset.tab === tab);

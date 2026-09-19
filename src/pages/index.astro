@@ -1,11 +1,12 @@
 ---
 /**
  * index.astro — Layout principal de NutriConsulta
- * Ensambla los paneles izquierdo y derecho bajo el header.
+ * Ensambla los paneles izquierdo, derecho y de guardado bajo el header.
  */
 import Header from '../components/Header.astro';
 import PanelIzquierdo from '../components/PanelIzquierdo.astro';
 import PanelDerecho from '../components/PanelDerecho.astro';
+import PanelGuardar from '../components/PanelGuardar.astro';
 import '../styles/global.css';
 ---
 
@@ -36,12 +37,16 @@ import '../styles/global.css';
         <button class="tab-btn" data-tab="detalle">
           Detalle
         </button>
+        <button class="tab-btn" data-tab="guardar">
+          Guardar
+        </button>
       </div>
 
-      <!-- Contenido principal: dos paneles lado a lado -->
+      <!-- Contenido principal: tres paneles lado a lado -->
       <div class="app-body">
         <PanelIzquierdo />
         <PanelDerecho />
+        <PanelGuardar />
       </div>
 
     </div>
