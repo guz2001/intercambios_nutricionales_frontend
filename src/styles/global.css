@@ -1,46 +1,71 @@
-/* Variables CSS globales de NutriConsulta */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* ══════════════════════════════════════════════════════════════════════════
+   NutriConsulta — Sistema de diseño
+   Paleta anclada en ingredientes reales: oliva (acción/selección), terracota
+   (energía/calorías), crema y trigo (superficies). Tipografía dual: Lora
+   (serif) para la identidad del alimento, Inter (sans) para la interfaz de
+   trabajo, con numerales tabulares en todo valor nutricional.
+   ══════════════════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:wght@500;600;700&display=swap');
 
 :root {
-  /* Colores */
-  --color-primary: #392a90;
-  --color-primary-hover: #614bf1;
-  --color-primary-light: #f2f0ff;
-  --color-primary-dark: #3d1ce0; /*Color del texto pequeño*/
-  --color-bg: #F8FAFC;
+  /* ── Superficies ─────────────────────────────────────────── */
+  --color-bg: #FAF6EE;           /* fondo general: papel/crema */
   --color-panel: #FFFFFF;
-  --color-border: #E2E8F0;
-  --color-border-light: #F1F5F9;
-  --color-text-primary: #290202;
-  --color-text-secondary: #7f77f0;
-  --color-text-muted: #000000;
-  --color-section-header: #978ebf;
-  --color-card-active-border: #573bf6;
+  --color-panel-alt: #F6F1E6;    /* superficie secundaria (grid de métricas) */
+  --color-border: #E8DFC9;       /* taupe cálido */
+  --color-border-strong: #D9CBA5;
 
-  /* Tipografía */
+  /* ── Texto ────────────────────────────────────────────────── */
+  --color-ink: #2A2318;          /* negro cálido — texto primario */
+  --color-ink-muted: #7A7061;    /* texto secundario */
+  --color-ink-faint: #A79C88;    /* texto terciario / placeholder */
+
+  /* ── Oliva: acción, selección, marca ─────────────────────── */
+  --color-olive: #55631F;
+  --color-olive-hover: #6B7A2A;
+  --color-olive-dark: #3C4715;
+  --color-olive-light: #EEF0DC;  /* fondo de selección / activo */
+
+  /* ── Terracota: energía, valor calórico ──────────────────── */
+  --color-terracota: #B5502E;
+  --color-terracota-dark: #8C3C21;
+  --color-terracota-light: #F7E4D8;
+
+  /* ── Trigo: badges de grupo, acentos suaves ──────────────── */
+  --color-trigo: #E7D9B3;
+  --color-trigo-dark: #7C6A3B;
+
+  /* Estado */
+  --color-danger: #A83A2C;
+
+  /* ── Tipografía ───────────────────────────────────────────── */
   --font-family: 'Inter', sans-serif;
+  --font-family-serif: 'Lora', serif;
   --font-size-xs: 11px;
-  --font-size-sm: 12px;
+  --font-size-sm: 12.5px;
   --font-size-base: 14px;
+  --font-size-md: 15px;
   --font-size-lg: 18px;
-  --font-size-xl: 18px;
-  --font-size-metric: 20px;
+  --font-size-xl: 21px;
+  --font-size-metric: 19px;
+  --font-size-hero: 32px;
 
-  /* Espaciado */
+  /* ── Espaciado ────────────────────────────────────────────── */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 12px;
-  --spacing-lg: 8px;
-  --spacing-xl: 18px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
 
-  /* Bordes */
-  --radius-sm: 6px;
+  /* ── Bordes ───────────────────────────────────────────────── */
+  --radius-sm: 5px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-full: 9999px;
 
-  /* Sombras */
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.06);
+  /* ── Elevación (uso reservado, no genérico) ──────────────── */
+  --shadow-soft: 0 1px 2px rgba(42, 35, 24, 0.06);
+  --shadow-elevated: 0 6px 18px rgba(42, 35, 24, 0.14);
   --shadow-panel: 0 0 0 1px var(--color-border);
 }
 
@@ -56,7 +81,7 @@ html, body {
   margin: 0;
   overflow: hidden;
   font-family: var(--font-family);
-  color: var(--color-text-primary);
+  color: var(--color-ink);
   background: var(--color-bg);
   -webkit-font-smoothing: antialiased;
 }
@@ -65,10 +90,22 @@ button, input, select, textarea {
   font-family: var(--font-family);
 }
 
+/* Numerales tabulares en todo dato nutricional */
+.tarjeta-stat strong,
+.metrica-valor,
+.nutriente-valor,
+.total-item strong,
+.guardado-cantidad,
+.guardado-kcal,
+.contador-guardados,
+.tarjeta-porcion {
+  font-variant-numeric: tabular-nums;
+}
+
 /* ─── HEADER ──────────────────────────────────────────────── */
 .app-header {
   height: 56px;
-  background: white;
+  background: var(--color-panel);
   border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
@@ -87,9 +124,11 @@ button, input, select, textarea {
 }
 
 .brand-name {
+  font-family: var(--font-family-serif);
   font-size: var(--font-size-lg);
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: var(--color-ink);
+  letter-spacing: 0.01em;
 }
 
 .header-user {
@@ -104,7 +143,7 @@ button, input, select, textarea {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--color-primary);
+  background: var(--color-olive);
   color: white;
   font-size: 12px;
   font-weight: 600;
@@ -115,7 +154,7 @@ button, input, select, textarea {
 
 .user-name {
   font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
+  color: var(--color-ink-muted);
 }
 
 /* ─── LAYOUT PRINCIPAL ────────────────────────────────────── */
@@ -136,7 +175,7 @@ button, input, select, textarea {
 .panel-izquierdo {
   width: 380px;
   height: 100%;
-  background: white;
+  background: var(--color-panel);
   border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
@@ -151,14 +190,24 @@ button, input, select, textarea {
   padding: var(--spacing-lg);
 }
 
+/* Etiqueta de sección: sin mayúsculas sostenidas — acento de línea en vez de tracking */
 .seccion-label {
-  display: block;
-  font-size: var(--font-size-xs);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--color-text-muted);
-  letter-spacing: 0.08em;
+  color: var(--color-ink-muted);
   margin-bottom: var(--spacing-sm);
-  text-transform: uppercase;
+}
+
+.seccion-label::before {
+  content: '';
+  width: 3px;
+  height: 12px;
+  background: var(--color-olive);
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
 }
 
 .seccion-poblacion {
@@ -175,24 +224,26 @@ button, input, select, textarea {
   padding: 0 var(--spacing-sm);
   height: 36px;
   border-radius: var(--radius-md);
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
   font-size: var(--font-size-base);
   font-family: var(--font-family);
   font-weight: 500;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   width: 100%;
-  background: #F1F5F9;
-  color: var(--color-text-secondary);
+  background: var(--color-panel-alt);
+  color: var(--color-ink-muted);
 }
 
 .btn-poblacion.activo {
-  background: var(--color-primary);
+  background: var(--color-olive);
   color: white;
+  font-weight: 600;
 }
 
 .btn-poblacion:hover:not(.activo) {
-  background: #E2E8F0;
+  border-color: var(--color-border-strong);
+  color: var(--color-ink);
 }
 
 .campo-busqueda {
@@ -210,13 +261,13 @@ button, input, select, textarea {
   font-family: var(--font-family);
   outline: none;
   box-sizing: border-box;
-  color: var(--color-text-primary);
-  background: white;
+  color: var(--color-ink);
+  background: var(--color-panel);
 }
 
 .campo-busqueda input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+  border-color: var(--color-olive);
+  box-shadow: 0 0 0 3px var(--color-olive-light);
 }
 
 .icono-busqueda {
@@ -224,7 +275,7 @@ button, input, select, textarea {
   left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--color-text-muted);
+  color: var(--color-ink-faint);
   width: 16px;
   height: 16px;
   pointer-events: none;
@@ -238,8 +289,8 @@ button, input, select, textarea {
   padding: 0 var(--spacing-sm);
   font-size: var(--font-size-base);
   font-family: var(--font-family);
-  color: var(--color-text-primary);
-  background: white;
+  color: var(--color-ink);
+  background: var(--color-panel);
   outline: none;
   margin-bottom: var(--spacing-md);
   cursor: pointer;
@@ -247,7 +298,7 @@ button, input, select, textarea {
 }
 
 .select-grupo:focus {
-  border-color: var(--color-primary);
+  border-color: var(--color-olive);
 }
 
 .lista-alimentos {
@@ -257,24 +308,24 @@ button, input, select, textarea {
   padding: 0 var(--spacing-lg);
 }
 
-/* ─── TARJETA ALIMENTO ────────────────────────────────────── */
+/* ─── TARJETA ALIMENTO (fila plana, no card genérica) ─────── */
 .tarjeta-alimento {
   padding: 12px var(--spacing-lg);
-  border-bottom: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
   border-left: 3px solid transparent;
   margin: 0 calc(-1 * var(--spacing-lg));
   padding-left: calc(var(--spacing-lg) - 3px);
 }
 
 .tarjeta-alimento:hover {
-  background: var(--color-bg);
+  background: var(--color-panel-alt);
 }
 
 .tarjeta-alimento.seleccionada {
-  background: var(--color-primary-light);
-  border-left-color: var(--color-primary);
+  background: var(--color-olive-light);
+  border-left-color: var(--color-olive);
 }
 
 .tarjeta-fila-1 {
@@ -287,16 +338,16 @@ button, input, select, textarea {
 .tarjeta-nombre {
   font-size: var(--font-size-base);
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--color-ink);
   flex: 1;
   margin-right: 8px;
 }
 
 .badge-grupo {
   font-size: var(--font-size-xs);
-  font-weight: 500;
-  background: var(--color-primary-light);
-  color: var(--color-primary-dark);
+  font-weight: 600;
+  background: var(--color-trigo);
+  color: var(--color-trigo-dark);
   padding: 2px 8px;
   border-radius: var(--radius-full);
   white-space: nowrap;
@@ -312,16 +363,16 @@ button, input, select, textarea {
 .icono-porcion {
   width: 12px;
   height: 12px;
-  color: var(--color-text-muted);
+  color: var(--color-ink-faint);
 }
 
 .tarjeta-porcion {
   font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  color: var(--color-ink-muted);
 }
 .tarjeta-unidad {
   font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  color: var(--color-ink-muted);
 }
 
 .tarjeta-fila-3 {
@@ -331,12 +382,12 @@ button, input, select, textarea {
 
 .tarjeta-stat {
   font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  color: var(--color-ink-muted);
 }
 
 .tarjeta-stat strong {
-  color: var(--color-text-primary);
-  font-weight: 600;
+  color: var(--color-ink);
+  font-weight: 700;
 }
 
 /* ─── PANEL DERECHO ───────────────────────────────────────── */
@@ -350,56 +401,69 @@ button, input, select, textarea {
 
 .alimento-header {
   padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-md);
-  background: white;
+  background: var(--color-panel);
   border-bottom: 1px solid var(--color-border);
 }
 
 .alimento-nombre {
+  font-family: var(--font-family-serif);
   font-size: var(--font-size-xl);
-  font-weight: 700;
-  color: var(--color-text-primary);
+  font-weight: 600;
+  color: var(--color-ink);
   margin: 0 0 var(--spacing-sm) 0;
 }
 
+/* Grid de métricas: se lee como una etiqueta de datos nutricionales, no
+   como un panel de tarjetas repetidas — kcal es la única con peso visual
+   propio, el resto son celdas separadas por reglas verticales. */
 .metricas-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg) var(--spacing-xl);
-  background: rgb(244, 243, 243);
+  grid-template-columns: 1.5fr repeat(5, 1fr);
+  gap: 0;
+  background: var(--color-panel-alt);
   border-bottom: 1px solid var(--color-border);
+  border-top: 3px solid var(--color-ink);
 }
 
 .metrica-card {
-  background: var(--color-bg);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-sm);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-xs);
+  justify-content: center;
+  gap: 3px;
+  border-left: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.metrica-card:first-child {
+  border-left: none;
 }
 
 .metrica-card.destacada {
-  background: var(--color-primary);
+  background: var(--color-terracota);
   color: white;
+  padding: var(--spacing-md);
 }
 
 .metrica-valor {
   font-size: var(--font-size-metric);
   font-weight: 700;
+  color: var(--color-ink);
 }
 
 .metrica-label {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  color: var(--color-ink-muted);
 }
 
 .metrica-card.destacada .metrica-label {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .metrica-card.destacada .metrica-valor {
+  font-size: var(--font-size-hero);
+  font-weight: 800;
   color: white;
 }
 
@@ -407,7 +471,7 @@ button, input, select, textarea {
 .campo-filtro-nutrientes {
   position: relative;
   padding: var(--spacing-md) var(--spacing-xl);
-  background: white;
+  background: var(--color-panel);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -421,12 +485,12 @@ button, input, select, textarea {
   font-family: var(--font-family);
   outline: none;
   box-sizing: border-box;
-  color: var(--color-text-primary);
-  background: white;
+  color: var(--color-ink);
+  background: var(--color-panel);
 }
 
 .campo-filtro-nutrientes input:focus {
-  border-color: var(--color-primary);
+  border-color: var(--color-olive);
 }
 
 .icono-filtro {
@@ -434,13 +498,17 @@ button, input, select, textarea {
   left: calc(var(--spacing-xl) + 10px);
   top: 50%;
   transform: translateY(-50%);
-  color: var(--color-text-muted);
+  color: var(--color-ink-faint);
   width: 16px;
   height: 16px;
   pointer-events: none;
 }
 
 /* ─── SECCIONES NUTRIENTES ────────────────────────────────── */
+/* Jerarquía macro vs micro: los macronutrientes abren con una regla gruesa
+   y valores más grandes (lo que más importa a simple vista); minerales y
+   vitaminas son más densos y compactos, como en una etiqueta nutricional
+   real donde el detalle fino ocupa menos espacio. */
 .nutrientes-scroll {
   flex: 1;
   overflow-y: auto;
@@ -449,6 +517,11 @@ button, input, select, textarea {
 
 .seccion-nutrientes {
   margin-bottom: var(--spacing-sm);
+  border-top: 1px solid var(--color-border);
+}
+
+.seccion-nutrientes[data-seccion="macronutrientes"] {
+  border-top: 3px solid var(--color-ink);
 }
 
 .seccion-nutrientes.oculta {
@@ -456,13 +529,23 @@ button, input, select, textarea {
 }
 
 .seccion-header {
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--color-section-header);
-  letter-spacing: 0.08em;
-  padding: 16px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-olive-dark);
+  padding: 14px 0 8px;
   margin: 0;
-  text-transform: uppercase;
+}
+
+.seccion-header::before {
+  content: '';
+  width: 3px;
+  height: 11px;
+  background: var(--color-olive);
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
 }
 
 .filas-nutrientes {
@@ -474,7 +557,7 @@ button, input, select, textarea {
   justify-content: space-between;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .fila-nutriente.oculta {
@@ -483,21 +566,54 @@ button, input, select, textarea {
 
 .nutriente-nombre {
   font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
+  color: var(--color-ink-muted);
 }
 
 .nutriente-valor {
   font-size: var(--font-size-base);
-  font-weight: 600;
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+/* Macronutrientes: filas más grandes, es el dato que más se consulta */
+.seccion-nutrientes[data-seccion="macronutrientes"] .fila-nutriente {
+  padding: 13px 0;
+}
+
+.seccion-nutrientes[data-seccion="macronutrientes"] .nutriente-nombre {
+  font-size: var(--font-size-md);
+  color: var(--color-ink);
+  font-weight: 500;
+}
+
+.seccion-nutrientes[data-seccion="macronutrientes"] .nutriente-valor {
+  font-size: var(--font-size-metric);
+  font-weight: 800;
+}
+
+/* Minerales y vitaminas: más densos, tipografía discreta */
+.seccion-nutrientes[data-seccion="minerales"] .fila-nutriente,
+.seccion-nutrientes[data-seccion="vitaminas"] .fila-nutriente {
+  padding: 8px 0;
+}
+
+.seccion-nutrientes[data-seccion="minerales"] .nutriente-nombre,
+.seccion-nutrientes[data-seccion="vitaminas"] .nutriente-nombre {
+  font-size: var(--font-size-sm);
+}
+
+.seccion-nutrientes[data-seccion="minerales"] .nutriente-valor,
+.seccion-nutrientes[data-seccion="vitaminas"] .nutriente-valor {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
 }
 
 /* ─── PANEL GUARDAR (CONTENEDOR) ──────────────────────────── */
 .panel-guardar {
   width: 340px;
   height: 100%;
-  background: white;
-  border-left: 1px solid var(--color-border);
+  background: var(--color-panel);
+  border-left: 2px solid var(--color-border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -510,14 +626,17 @@ button, input, select, textarea {
 }
 
 .panel-guardar-titulo {
+  font-family: var(--font-family-serif);
   font-size: var(--font-size-lg);
-  font-weight: 700;
-  color: var(--color-text-primary);
+  font-weight: 600;
+  color: var(--color-ink);
 }
 
 /* ─── LISTA DE TRABAJO (GUARDADOS Y TOTALES) ──────────────── */
+/* Junto al hero de kcal, es el único otro bloque que se gana un tratamiento
+   elevado: es la suma que el nutricionista arma durante la consulta. */
 .panel-guardados {
-  background: white;
+  background: var(--color-panel);
   padding: var(--spacing-md) var(--spacing-xl) var(--spacing-xl);
   display: flex;
   flex-direction: column;
@@ -534,6 +653,10 @@ button, input, select, textarea {
   flex-wrap: wrap;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-sm);
+  background: var(--color-olive-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-sm);
+  box-shadow: var(--shadow-elevated);
 }
 
 .total-item {
@@ -542,19 +665,18 @@ button, input, select, textarea {
   flex-direction: column;
   gap: 2px;
   padding: var(--spacing-sm);
-  background: var(--color-primary-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
 }
 
 .total-item span {
   font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
+  color: var(--color-olive-dark);
 }
 
 .total-item strong {
   font-size: var(--font-size-base);
-  font-weight: 700;
-  color: var(--color-primary-dark);
+  font-weight: 800;
+  color: var(--color-olive-dark);
 }
 
 .lista-guardados {
@@ -564,7 +686,7 @@ button, input, select, textarea {
 
 .lista-guardados .vacio {
   font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+  color: var(--color-ink-muted);
   padding: var(--spacing-sm) 0;
 }
 
@@ -573,13 +695,13 @@ button, input, select, textarea {
   align-items: center;
   gap: var(--spacing-sm);
   padding: 8px 0;
-  border-bottom: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .guardado-nombre {
   flex: 1;
   font-size: var(--font-size-base);
-  color: var(--color-text-primary);
+  color: var(--color-ink);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -588,8 +710,8 @@ button, input, select, textarea {
 .guardado-cantidad,
 .guardado-kcal {
   font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-secondary);
+  font-weight: 700;
+  color: var(--color-ink-muted);
   white-space: nowrap;
 }
 
@@ -599,8 +721,8 @@ button, input, select, textarea {
   flex-shrink: 0;
   border: none;
   border-radius: var(--radius-full);
-  background: var(--color-border-light);
-  color: var(--color-text-secondary);
+  background: var(--color-panel-alt);
+  color: var(--color-ink-muted);
   font-size: var(--font-size-base);
   line-height: 1;
   font-family: var(--font-family);
@@ -609,14 +731,14 @@ button, input, select, textarea {
 }
 
 .btn-eliminar-guardado:hover {
-  background: var(--color-primary);
+  background: var(--color-danger);
   color: white;
 }
 
 /* ─── BARRA GUARDAR ───────────────────────────────────────── */
 .barra-guardar {
   padding: var(--spacing-md) var(--spacing-xl);
-  background: white;
+  background: var(--color-panel);
   border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
@@ -626,7 +748,7 @@ button, input, select, textarea {
 .btn-guardar {
   flex: 1;
   height: 48px;
-  background: var(--color-primary);
+  background: var(--color-olive);
   color: white;
   border: none;
   border-radius: var(--radius-lg);
@@ -638,7 +760,7 @@ button, input, select, textarea {
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
-  box-shadow: 0 2px 6px rgba(57, 42, 144, 0.25);
+  box-shadow: var(--shadow-elevated);
   transition: background 0.15s, transform 0.1s;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -646,19 +768,19 @@ button, input, select, textarea {
 }
 
 .btn-guardar:hover {
-  background: var(--color-primary-hover);
+  background: var(--color-olive-hover);
 }
 
 .btn-guardar:active {
-  background: var(--color-primary-hover);
+  background: var(--color-olive-hover);
   transform: scale(0.97);
-  box-shadow: 0 1px 3px rgba(57, 42, 144, 0.25);
+  box-shadow: var(--shadow-soft);
 }
 
 .contador-guardados {
   min-width: 28px;
   height: 28px;
-  background: var(--color-primary);
+  background: var(--color-olive-dark);
   color: white;
   border-radius: var(--radius-full);
   font-size: var(--font-size-xs);
@@ -677,14 +799,16 @@ button, input, select, textarea {
   justify-content: center;
   height: 100%;
   gap: var(--spacing-md);
-  color: var(--color-text-muted);
+  color: var(--color-ink-muted);
   font-size: var(--font-size-base);
   text-align: center;
   padding: var(--spacing-xl);
 }
 
 .estado-vacio svg {
-  color: var(--color-border);
+  color: var(--color-border-strong);
+  width: 48px;
+  height: 48px;
 }
 
 /* ─── TABS MÓVIL ──────────────────────────────────────────── */
@@ -701,7 +825,7 @@ button, input, select, textarea {
 
   .tabs-movil {
     display: flex;
-    background: white;
+    background: var(--color-panel);
     border-bottom: 1px solid var(--color-border);
     flex-shrink: 0;
   }
@@ -713,15 +837,16 @@ button, input, select, textarea {
     background: transparent;
     font-size: var(--font-size-base);
     font-weight: 500;
-    color: var(--color-text-muted);
+    color: var(--color-ink-muted);
     cursor: pointer;
     border-bottom: 2px solid transparent;
-    transition: all 0.15s;
+    transition: color 0.15s, border-color 0.15s;
   }
 
   .tab-btn.activo {
-    color: var(--color-primary);
-    border-bottom-color: var(--color-primary);
+    color: var(--color-olive);
+    border-bottom-color: var(--color-olive);
+    font-weight: 600;
   }
 
   .panel-izquierdo {
@@ -758,6 +883,15 @@ button, input, select, textarea {
 
   .metricas-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .metrica-card {
+    border-left: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .metrica-card.destacada {
+    grid-column: 1 / -1;
   }
 
   .barra-guardar {
