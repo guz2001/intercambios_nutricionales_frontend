@@ -19,7 +19,7 @@ import { filtrarMocks, obtenerMockPorId } from '../mock/alimentos.js';
 
 /* Cambiar a false cuando el backend Django esté listo */
 const USE_MOCK = false; // cambiamos a false para conectar este frontend con el backend
-const API_BASE_URL = '/api/'
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '/api/';
 const estado = {
   poblacion: 'niños_y_adultos',
   busqueda: '',
