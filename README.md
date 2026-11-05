@@ -113,110 +113,17 @@ npm run preview     # Previsualiza el build en localhost
 
 ## Cómo conectar el backend Django
 
-### Paso único
+### Variables de entorno (copia `.env.example` a `.env`)
 
-Abre el archivo `src/scripts/app.js` y cambia la línea 21:
+| Variable | Uso |
+|---|---|
+| `PUBLIC_USE_MOCK` | `true` = datos mock · `false` = `nutricio_backend` real |
+| `BACKEND_URL` | Solo dev: destino del proxy `/api` (por defecto `http://localhost:8000`) |
+| `PUBLIC_API_URL` | Producción: URL absoluta del backend (vacío = mismo origen) |
 
-```js
-// ANTES (modo mock, sin backend)
-const USE_MOCK = true;
+Endpoints consumidos (sin cambios): `GET /api/alimentos/?q=&grupo_id=&poblacion=`, `GET /api/alimentos/:id/`, `GET /api/grupos/`.
 
-// DESPUÉS (conectado al backend)
-const USE_MOCK = false;
-```
-
-Con `USE_MOCK = false`, la app deja de leer los archivos locales y pasa a hacer peticiones HTTP reales al backend.
-
-### Endpoints que el backend debe implementar
-
-#### `GET /api/alimentos/`
-
-Retorna la lista de alimentos filtrada según los parámetros de query.
-
-**Parámetros de query (todos opcionales):**
-
-| Parámetro | Tipo | Descripción |
-|---|---|---|
-| `q` | `string` | Texto de búsqueda por nombre (case-insensitive) |
-| `grupo_id` | `number` | ID del grupo alimentario |
-| `poblacion` | `string` | `ninos_y_adultos` / `adultos` / `ninos` / `menores_de_dos_anios` |
-
-**Respuesta esperada:** array de objetos alimento (ver estructura abajo).
-
-**Ejemplo de URL:** `/api/alimentos/?q=leche&grupo_id=2&poblacion=adultos`
-
----
-
-#### `GET /api/alimentos/:id/`
-
-Retorna el detalle completo de un alimento por su ID.
-
-**Respuesta esperada:** objeto alimento único (misma estructura que la lista).
-
-**Ejemplo de URL:** `/api/alimentos/1/`
-
----
-
-#### `GET /api/grupos/` *(opcional — solo si USE_MOCK = false)*
-
-Retorna la lista de grupos para el dropdown. El frontend la consume en `cargarGrupos()`.
-
-**Respuesta esperada:**
-```json
-[
-  { "id": 1, "nombre": "Cereales y derivados" },
-  { "id": 2, "nombre": "Lácteos" }
-]
-```
-
----
-
-### Estructura exacta de datos — objeto alimento
-
-```json
-{
-  "id": 1,
-  "nombre": "Leche entera",
-  "grupo": {
-    "id": 2,
-    "nombre": "Lácteos"
-  },
-  "porcion_g": 240,
-  "unidad_medida": "ml",
-  "poblacion": "adultos",
-  "kcal": 150,
-  "proteina_g": 8.0,
-  "cho_g": 11.7,
-  "grasa_total_g": 8.0,
-  "fibra_g": 0,
-  "ags_g": 4.6,
-  "agm_g": 2.3,
-  "agp_g": 0.3,
-  "colesterol_mg": 30,
-  "calcio_mg": 290,
-  "fosforo_mg": 222,
-  "hierro_mg": 0.1,
-  "sodio_mg": 105,
-  "potasio_mg": 370,
-  "magnesio_mg": 27,
-  "zinc_mg": 1.0,
-  "cobre_mg": 0.01,
-  "manganeso_mg": 0.01,
-  "vita_er": 68,
-  "tiamina_mg": 0.09,
-  "riboflavina_mg": 0.35,
-  "niacina_mg": 0.2,
-  "pantotenico_mg": 0.72,
-  "piridoxina_mg": 0.08,
-  "folato_mcg": 12,
-  "vitb12_mcg": 0.9,
-  "vitc_mg": 0
-}
-```
-
-Los campos con valor `null`, `undefined` o `0` se muestran como `—` en la interfaz (ver `formatearValor()` en app.js).
-
----
+> "Mi lista" y los ajustes de lectura se guardan por ahora en `localStorage`; el prototipo prevé una API de guardados (pendiente de definir en el backend).
 
 ## Documentación adicional
 
