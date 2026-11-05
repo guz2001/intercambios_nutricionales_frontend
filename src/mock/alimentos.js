@@ -117,7 +117,7 @@ export const alimentos = [
     grupo: { id: 1, nombre: "Cereales y derivados" },
     porcion_g: 30,
     unidad_medida: "g",
-    poblacion: "ninos_y_adultos",
+    poblacion: "niños_y_adultos",
     kcal: 68,
     proteina_g: 2.7,
     cho_g: 13.0,
@@ -306,7 +306,7 @@ export function filtrarMocks({ q = '', grupo_id = '', poblacion = '' }) {
     const coincidePoblacion =
       !poblacion ||
       a.poblacion === poblacion ||
-      a.poblacion === 'ninos_y_adultos';
+      a.poblacion === 'niños_y_adultos';
 
     return coincideTexto && coincideGrupo && coincidePoblacion;
   });

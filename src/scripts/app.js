@@ -6,10 +6,12 @@
  * 3. Utilidades             7. Ajustes
  * 4. Buscar y Detalle       8. Router + init
  *
- * Contrato con el backend (sin cambios respecto a v1):
- *   GET /api/alimentos/?q=&grupo_id=&poblacion=   → [alimento]
- *   GET /api/alimentos/:id/                       → alimento
- *   GET /api/grupos/                              → [{id, nombre}]
+ * Contrato con nutricio_backend (DRF, listas paginadas en `results`):
+ *   GET    /api/alimentos/?q=&grupo_id=&poblacion=
+ *   GET    /api/alimentos/:id/
+ *   GET    /api/grupos/?poblacion=
+ *   GET|POST /api/guardados/   (POST {alimento_id, cantidad})
+ *   DELETE /api/guardados/:id/      GET /api/guardados/total/
  */
 
 import { grupos as gruposMock } from '../mock/grupos.js';
@@ -17,15 +19,15 @@ import { filtrarMocks, obtenerMockPorId } from '../mock/alimentos.js';
 
 // ─── 1. CONFIG Y ESTADO ────────────────────────────────────────────────────────
 
-/* PUBLIC_USE_MOCK=false en .env → usa nutricio_backend real */
-const USE_MOCK = import.meta.env.PUBLIC_USE_MOCK !== 'false';
-const API_URL = (import.meta.env.PUBLIC_API_URL || '').replace(/\/$/, '');
+/* Por defecto habla con nutricio_backend (como main). PUBLIC_USE_MOCK=true → datos locales */
+const USE_MOCK = import.meta.env.PUBLIC_USE_MOCK === 'true';
+const API_BASE_URL = (import.meta.env.PUBLIC_API_URL || '/api/').replace(/\/?$/, '/');
 const NUTRICIONISTA = 'Paula Valentina Rojas';
 
 const POBLACIONES = {
-  ninos_y_adultos: 'Niños y adultos',
+  niños_y_adultos: 'Niños y adultos',
   adultos: 'Adultos',
-  ninos: 'Niños',
+  niños: 'Niños',
   menores_de_dos_anios: 'Menores de 2 años',
 };
 
@@ -42,15 +44,15 @@ const SECCIONES = [
     ['sodio_mg', 'Sodio', 'mg'], ['potasio_mg', 'Potasio', 'mg'], ['magnesio_mg', 'Magnesio', 'mg'],
     ['zinc_mg', 'Zinc', 'mg'], ['cobre_mg', 'Cobre', 'mg'], ['manganeso_mg', 'Manganeso', 'mg'] ] },
   { titulo: 'Vitaminas', items: [
-    ['vita_er', 'Vitamina A (retinol)', 'μg ER'], ['tiamina_mg', 'Tiamina (B1)', 'mg'],
+    ['vit_a_er', 'Vitamina A (retinol)', 'μg ER'], ['tiamina_mg', 'Tiamina (B1)', 'mg'],
     ['riboflavina_mg', 'Riboflavina (B2)', 'mg'], ['niacina_mg', 'Niacina (B3)', 'mg'],
-    ['pantotenico_mg', 'Ác. pantoténico (B5)', 'mg'], ['piridoxina_mg', 'Piridoxina (B6)', 'mg'],
-    ['folato_mcg', 'Folato (B9)', 'μg'], ['vitb12_mcg', 'Vitamina B12', 'μg'], ['vitc_mg', 'Vitamina C', 'mg'] ] },
+    ['ac_pantotenico_mg', 'Ác. pantoténico (B5)', 'mg'], ['piridoxina_mg', 'Piridoxina (B6)', 'mg'],
+    ['folato_mcg', 'Folato (B9)', 'μg'], ['vit_b12_mcg', 'Vitamina B12', 'μg'], ['vit_c_mg', 'Vitamina C', 'mg'] ] },
 ];
 const TODOS = [['kcal', 'Energía', 'kcal'], ...SECCIONES.flatMap((s) => s.items)];
 
 const estado = {
-  poblacion: 'ninos_y_adultos',
+  poblacion: 'niños_y_adultos',
   busqueda: '',
   grupoId: '',
   alimentos: [],
@@ -58,34 +60,120 @@ const estado = {
   gramos: 0, // cantidad elegida en la calculadora
   comp: { a: null, b: null },
   eligiendo: null, // 'a' | 'b' cuando buscar sirve para elegir comparación
-  lista: [], // [{ id, gramos, alimento }]
+  guardados: [], // backend: [{ id, alimento, cantidad }]
+  totales: null, // backend: /guardados/total/
+  total: 0, // count de la paginación
 };
 
 // ─── 2. API ────────────────────────────────────────────────────────────────────
 
-async function getJSON(path) {
-  const res = await fetch(API_URL + path, { headers: { Accept: 'application/json' } });
+/*
+ * Contrato real de nutricio_backend (Django REST Framework):
+ *  - Las listas vienen paginadas: { count, next, results: [...] }
+ *  - Los decimales llegan como texto ("161.000") → se convierten a número
+ *  - Algunas vitaminas se llaman distinto que en el mock → se normalizan aquí
+ */
+const ALIAS = {
+  vit_a_er: 'vita_er',
+  ac_pantotenico_mg: 'pantotenico_mg',
+  vit_b12_mcg: 'vitb12_mcg',
+  vit_c_mg: 'vitc_mg',
+};
+const ES_NUMERICO = /(^kcal$|_g$|_mg$|_mcg$|_er$)/;
+
+function normalizar(a) {
+  if (!a || typeof a !== 'object') return a;
+  const o = { ...a };
+  for (const [real, mock] of Object.entries(ALIAS)) {
+    if (o[real] === undefined && o[mock] !== undefined) o[real] = o[mock];
+  }
+  for (const k of Object.keys(o)) {
+    if (ES_NUMERICO.test(k) && o[k] !== null && o[k] !== '' && !Number.isNaN(Number(o[k]))) o[k] = Number(o[k]);
+  }
+  return o;
+}
+
+const resultados = (d) => (Array.isArray(d) ? d : d?.results ?? []);
+const JSON_HEADERS = { Accept: 'application/json', 'Content-Type': 'application/json' };
+
+async function getJSON(path, opts = {}) {
+  const res = await fetch(API_BASE_URL + path, { ...opts, headers: { Accept: 'application/json', ...opts.headers } });
   if (!res.ok) throw new Error(`HTTP ${res.status} en ${path}`);
-  return res.json();
+  return res.status === 204 ? null : res.json(); // DELETE responde 204 sin cuerpo
 }
 
 async function fetchAlimentos({ q, grupo_id, poblacion }) {
-  if (USE_MOCK) return filtrarMocks({ q, grupo_id, poblacion });
+  if (USE_MOCK) return filtrarMocks({ q, grupo_id, poblacion }).map(normalizar);
   const p = new URLSearchParams();
   if (q) p.set('q', q);
   if (grupo_id) p.set('grupo_id', grupo_id);
   if (poblacion) p.set('poblacion', poblacion);
-  const qs = p.toString();
-  return getJSON(`/api/alimentos/${qs ? `?${qs}` : ''}`);
+  const data = await getJSON(`alimentos/?${p.toString()}`);
+  estado.total = Array.isArray(data) ? data.length : data.count;
+  return resultados(data).map(normalizar);
 }
 
 async function fetchDetalle(id) {
-  if (USE_MOCK) return obtenerMockPorId(id);
-  return getJSON(`/api/alimentos/${encodeURIComponent(id)}/`);
+  if (USE_MOCK) return normalizar(obtenerMockPorId(id));
+  return normalizar(await getJSON(`alimentos/${encodeURIComponent(id)}/`));
 }
 
-async function fetchGrupos() {
-  return USE_MOCK ? gruposMock : getJSON('/api/grupos/');
+/* Los grupos dependen de la población seleccionada */
+async function fetchGrupos(poblacion) {
+  if (USE_MOCK) return gruposMock;
+  return resultados(await getJSON(`grupos/?poblacion=${encodeURIComponent(poblacion)}`));
+}
+
+/* ── Guardados (lista de trabajo). Mock: localStorage con la misma forma que el backend ── */
+const LS_MOCK = 'nutri.guardados.mock';
+const leerMock = () => { try { return JSON.parse(localStorage.getItem(LS_MOCK) || '[]'); } catch { return []; } };
+const escribirMock = (l) => { try { localStorage.setItem(LS_MOCK, JSON.stringify(l)); } catch { /* sin storage */ } };
+
+async function fetchGuardados() {
+  if (USE_MOCK) return leerMock();
+  return resultados(await getJSON('guardados/')).map((g) => ({ ...g, alimento: normalizar(g.alimento), cantidad: Number(g.cantidad) }));
+}
+
+/* cantidad = nº de porciones de referencia (el backend multiplica kcal × cantidad) */
+async function postGuardado(alimento, cantidad) {
+  if (USE_MOCK) {
+    const l = leerMock();
+    const ex = l.find((g) => String(g.alimento.id) === String(alimento.id));
+    if (ex) ex.cantidad += cantidad; else l.push({ id: Date.now(), alimento, cantidad });
+    return escribirMock(l);
+  }
+  return getJSON('guardados/', { method: 'POST', headers: JSON_HEADERS, body: JSON.stringify({ alimento_id: alimento.id, cantidad }) });
+}
+
+/* ⚠ PATCH /guardados/:id/ no está verificado contra el backend (ver nota de entrega) */
+async function patchGuardado(id, cantidad) {
+  if (USE_MOCK) {
+    const l = leerMock();
+    const g = l.find((x) => x.id === id);
+    if (g) g.cantidad = cantidad;
+    return escribirMock(l);
+  }
+  return getJSON(`guardados/${id}/`, { method: 'PATCH', headers: JSON_HEADERS, body: JSON.stringify({ cantidad }) });
+}
+
+async function deleteGuardado(id) {
+  if (USE_MOCK) return escribirMock(leerMock().filter((g) => g.id !== id));
+  return getJSON(`guardados/${id}/`, { method: 'DELETE' });
+}
+
+/* Totales ya sumados por el backend (/api/guardados/total/) */
+async function fetchTotales() {
+  if (USE_MOCK) {
+    const l = leerMock();
+    const t = { kcal: 0, proteina_g: 0, grasa_total_g: 0, cho_g: 0, porcion_g: 0, items: l.length };
+    l.forEach(({ alimento: a, cantidad: c }) => {
+      t.kcal += a.kcal * c; t.proteina_g += a.proteina_g * c; t.grasa_total_g += a.grasa_total_g * c;
+      t.cho_g += a.cho_g * c; t.porcion_g += a.porcion_g * c;
+    });
+    return t;
+  }
+  const d = await getJSON('guardados/total/');
+  return Object.fromEntries(Object.entries(d).map(([k, v]) => [k, Number(v)]));
 }
 
 // ─── 3. UTILIDADES ─────────────────────────────────────────────────────────────
@@ -128,7 +216,8 @@ function pintarCarga() {
 function renderizarLista() {
   const lista = estado.alimentos;
   $('#contador-resultados').textContent =
-    lista.length === 1 ? '1 alimento' : `${lista.length} alimentos`;
+    estado.total > lista.length ? `Mostrando ${lista.length} de ${estado.total} alimentos`
+    : lista.length === 1 ? '1 alimento' : `${lista.length} alimentos`;
 
   if (!lista.length) {
     pintarEstadoLista(`
@@ -185,9 +274,12 @@ const buscarConDebounce = () => {
 };
 
 async function cargarGrupos() {
+  const cont = $('#chips-grupo');
+  cont.innerHTML = '<button class="chip" data-valor="" aria-pressed="true">Todos</button>';
+  estado.grupoId = '';
   try {
-    const grupos = await fetchGrupos();
-    $('#chips-grupo').insertAdjacentHTML(
+    const grupos = await fetchGrupos(estado.poblacion);
+    cont.insertAdjacentHTML(
       'beforeend',
       grupos.map((g) => `<button class="chip" data-valor="${esc(g.id)}" aria-pressed="false">${esc(g.nombre)}</button>`).join('')
     );
@@ -361,37 +453,37 @@ function renderizarComparar() {
     </table>`;
 }
 
-// ─── 6. MI LISTA + IMPRESIÓN ───────────────────────────────────────────────────
+// ─── 6. MI LISTA (backend /guardados/) + IMPRESIÓN ─────────────────────────────
 
-const LS_LISTA = 'nutri.lista';
-function cargarLista() {
+const r3 = (n) => Math.round(n * 1000) / 1000;
+
+async function cargarGuardados() {
   try {
-    const l = JSON.parse(localStorage.getItem(LS_LISTA) || '[]');
-    if (Array.isArray(l)) estado.lista = l.filter((i) => i?.alimento && i.gramos > 0);
-  } catch { /* sin storage: la lista vive solo en memoria */ }
-}
-function guardarLista() {
-  try { localStorage.setItem(LS_LISTA, JSON.stringify(estado.lista)); } catch { /* ignore */ }
-  $('#contador-guardados').textContent = estado.lista.length;
-}
-
-function agregarALista(alimento, gramos) {
-  const existente = estado.lista.find((i) => String(i.id) === String(alimento.id));
-  if (existente) existente.gramos += gramos;
-  else estado.lista.push({ id: alimento.id, gramos, alimento });
-  guardarLista();
-  toast(`Agregado: ${alimento.nombre} · ${num(gramos)} g`);
+    [estado.guardados, estado.totales] = await Promise.all([fetchGuardados(), fetchTotales()]);
+  } catch (err) {
+    console.error(err);
+    toast('No se pudo cargar tu lista');
+  }
+  $('#contador-guardados').textContent = estado.totales?.items ?? estado.guardados.length;
+  if (!$('#vista-lista').hidden) renderizarLista_();
 }
 
+async function agregarALista(alimento, gramos) {
+  const cantidad = r3(gramos / (Number(alimento.porcion_g) || 1));
+  try {
+    await postGuardado(alimento, cantidad);
+    await cargarGuardados();
+    toast(`Agregado: ${alimento.nombre} · ${num(gramos)} g`);
+  } catch (err) {
+    console.error(err);
+    toast('No se pudo guardar el alimento');
+  }
+}
+
+/* Totales del backend + reparto de energía (Atwater: 4 / 4 / 9 kcal por gramo) */
 function totales() {
-  const t = { kcal: 0, prot: 0, cho: 0, grasa: 0, g: 0 };
-  estado.lista.forEach(({ alimento: a, gramos }) => {
-    t.kcal += escalado(a, 'kcal', gramos) || 0;
-    t.prot += escalado(a, 'proteina_g', gramos) || 0;
-    t.cho += escalado(a, 'cho_g', gramos) || 0;
-    t.grasa += escalado(a, 'grasa_total_g', gramos) || 0;
-    t.g += gramos;
-  });
+  const b = estado.totales || {};
+  const t = { kcal: b.kcal || 0, prot: b.proteina_g || 0, cho: b.cho_g || 0, grasa: b.grasa_total_g || 0, g: b.porcion_g || 0 };
   const e = t.prot * 4 + t.cho * 4 + t.grasa * 9 || 1;
   t.pct = { prot: Math.round((t.prot * 400) / e), cho: Math.round((t.cho * 400) / e), grasa: Math.round((t.grasa * 900) / e) };
   return t;
@@ -399,7 +491,7 @@ function totales() {
 
 function renderizarLista_() {
   const cont = $('#lista-contenido');
-  const n = estado.lista.length;
+  const n = estado.guardados.length;
   if (!n) {
     cont.innerHTML = `
       <h1 class="titulo-vista">Mi lista</h1>
@@ -411,20 +503,20 @@ function renderizarLista_() {
     return;
   }
   const t = totales();
-  const items = estado.lista.map(({ alimento: a, gramos }, i) => {
-    const p = gramos / (Number(a.porcion_g) || 1);
+  const items = estado.guardados.map(({ id, alimento: a, cantidad: c }) => {
+    const gramos = c * (Number(a.porcion_g) || 1);
     return `
       <div class="item">
         <div>
           <h3>${esc(a.nombre)}</h3>
-          <p>${num(p)} ${p === 1 ? 'porción' : 'porciones'} · ${Math.round(escalado(a, 'kcal', gramos))} kcal · ${num(gramos)} g</p>
+          <p>${num(c)} ${c === 1 ? 'porción' : 'porciones'} · ${Math.round(Number(a.kcal) * c)} kcal · ${num(gramos)} g</p>
         </div>
         <div class="stepper" role="group" aria-label="Cantidad de ${esc(a.nombre)}">
-          <button data-menos="${i}" aria-label="Quitar una porción" ${gramos - a.porcion_g <= 0 ? 'disabled' : ''}>−</button>
-          <output>${num(p)}</output>
-          <button data-mas="${i}" aria-label="Agregar una porción">+</button>
+          <button data-menos="${id}" aria-label="Quitar una porción" ${c - 1 <= 0 ? 'disabled' : ''}>−</button>
+          <output>${num(c)}</output>
+          <button data-mas="${id}" aria-label="Agregar una porción">+</button>
         </div>
-        <button class="btn-quitar" data-quitar="${i}" aria-label="Quitar ${esc(a.nombre)}">${ICONO_X}</button>
+        <button class="btn-quitar" data-quitar="${id}" aria-label="Quitar ${esc(a.nombre)}">${ICONO_X}</button>
       </div>`;
   }).join('');
 
@@ -462,10 +554,13 @@ function renderizarLista_() {
 
 function imprimirLista() {
   const t = totales();
-  const filas = estado.lista.map(({ alimento: a, gramos }) => `
+  const filas = estado.guardados.map(({ alimento: a, cantidad: c }) => {
+    const gramos = c * (Number(a.porcion_g) || 1);
+    return `
     <tr><td>${esc(a.nombre)}</td><td>${esc(a.grupo?.nombre)}</td><td>${num(gramos)} g</td>
-    <td>${Math.round(escalado(a, 'kcal', gramos))}</td><td>${val(escalado(a, 'proteina_g', gramos), 'g')}</td>
-    <td>${val(escalado(a, 'cho_g', gramos), 'g')}</td><td>${val(escalado(a, 'grasa_total_g', gramos), 'g')}</td></tr>`).join('');
+    <td>${Math.round(Number(a.kcal) * c)}</td><td>${val(Number(a.proteina_g) * c, 'g')}</td>
+    <td>${val(Number(a.cho_g) * c, 'g')}</td><td>${val(Number(a.grasa_total_g) * c, 'g')}</td></tr>`;
+  }).join('');
   const fecha = new Date().toLocaleDateString('es', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
   $('#hoja-impresion').innerHTML = `
@@ -541,7 +636,7 @@ function mostrar(vista) {
     $('#sub-buscar').textContent = el ? 'Toca uno para compararlo' : 'Tabla de composición de alimentos';
   }
   if (vista === 'comparar') renderizarComparar();
-  if (vista === 'lista') renderizarLista_();
+  if (vista === 'lista') { renderizarLista_(); cargarGuardados(); }
   window.scrollTo(0, 0);
 }
 
@@ -568,7 +663,7 @@ function registrarEventos() {
     if (!b) return;
     $$('#chips-poblacion .chip').forEach((c) => c.setAttribute('aria-pressed', String(c === b)));
     estado.poblacion = b.dataset.valor;
-    buscarYRenderizar();
+    cargarGrupos().then(buscarYRenderizar);
   });
   $('#chips-grupo').addEventListener('click', (e) => {
     const b = e.target.closest('.chip');
@@ -621,22 +716,26 @@ function registrarEventos() {
   $('#btn-add-a').addEventListener('click', () => estado.comp.a && agregarALista(estado.comp.a, base()));
   $('#btn-add-b').addEventListener('click', () => estado.comp.b && agregarALista(estado.comp.b, base()));
 
-  /* Mi lista */
-  $('#lista-contenido').addEventListener('click', (e) => {
+  /* Mi lista (cada acción va al backend y luego se recarga lista + totales) */
+  $('#lista-contenido').addEventListener('click', async (e) => {
     const t = e.target.closest('button');
     if (!t) return;
-    const idx = (k) => Number(t.dataset[k]);
-    const paso = (i) => Number(estado.lista[i].alimento.porcion_g) || 100;
-    if (t.dataset.mas !== undefined) estado.lista[idx('mas')].gramos += paso(idx('mas'));
-    else if (t.dataset.menos !== undefined) estado.lista[idx('menos')].gramos -= paso(idx('menos'));
-    else if (t.dataset.quitar !== undefined) estado.lista.splice(idx('quitar'), 1);
-    else if (t.id === 'btn-vaciar') {
-      if (!confirm('¿Vaciar toda la lista?')) return;
-      estado.lista = [];
-    } else if (t.id === 'btn-imprimir') return imprimirLista();
-    else return;
-    guardarLista();
-    renderizarLista_();
+    if (t.id === 'btn-imprimir') return imprimirLista();
+    const id = t.dataset.mas ?? t.dataset.menos ?? t.dataset.quitar;
+    const g = estado.guardados.find((x) => String(x.id) === id);
+    try {
+      if (t.dataset.mas !== undefined && g) await patchGuardado(g.id, r3(g.cantidad + 1));
+      else if (t.dataset.menos !== undefined && g) await patchGuardado(g.id, r3(g.cantidad - 1));
+      else if (t.dataset.quitar !== undefined && g) await deleteGuardado(g.id);
+      else if (t.id === 'btn-vaciar') {
+        if (!confirm('¿Vaciar toda la lista?')) return;
+        await Promise.all(estado.guardados.map((x) => deleteGuardado(x.id)));
+      } else return;
+    } catch (err) {
+      console.error(err);
+      toast('No se pudo actualizar la lista');
+    }
+    await cargarGuardados();
   });
 
   /* Ajustes */
@@ -652,12 +751,11 @@ function registrarEventos() {
 
 async function init() {
   cargarAjustes();
-  cargarLista();
-  guardarLista(); // sincroniza el contador
   registrarEventos();
   mostrar(location.hash.slice(1) || 'buscar');
   await cargarGrupos();
   await buscarYRenderizar();
+  await cargarGuardados();
 }
 
 init();
